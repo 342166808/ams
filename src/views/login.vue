@@ -143,7 +143,7 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-image:url(	../assets/logo/bg.png );
+    background-image:url(	../assets/logo/bg-1.jpg );
     background-size: cover;
   }
   .title {
