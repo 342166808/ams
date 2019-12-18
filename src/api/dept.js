@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getDepts(params) {
   return request({
-    url: 'api/dept',
+    url: '/api/departmentInfo',
     method: 'get',
     params
   })
@@ -33,7 +33,7 @@ export function edit(data) {
 
 export function downloadDept(params) {
   return request({
-    url: 'api/dept/download',
+    url: '/api/departmentInfo',
     method: 'get',
     params,
     responseType: 'blob'
