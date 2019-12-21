@@ -32,7 +32,7 @@
           <el-table-column prop="depName" label="部门" width="120"/>
           <el-table-column prop="position" label="岗位"/>
           <el-table-column prop="scheduleName" label="班次"/>
-          <el-table-column prop="workerDate" label="工作日"/>
+          <el-table-column prop="dayOfTheWeekStr" label="工作日"/>
           <el-table-column prop="checkInTime" label="上班刷卡时间"/>
           <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
           <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>
@@ -59,7 +59,7 @@ import { getDepts } from '@/api/dept'
 import { parseTime, downloadFile } from '@/utils/index'
 
 export default {
-  name: 'User',
+  name: 'Attendance',
   mixins: [initData],
   // 设置数据字典
   dicts: ['user_status'],
@@ -67,15 +67,13 @@ export default {
     return {
       deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
-      delLoading: false, deptName: '', depts: [], deptId: null,
+      delLoading: false,
+      depts: [],
+      deptId: null,
       defaultProps: {
         children: 'children',
-        label: 'name'
-      },
-      enabledTypeOptions: [
-        { key: 'true', display_name: '激活' },
-        { key: 'false', display_name: '锁定' }
-      ]
+        label: 'dptName'
+      }
     }
   },
   created() {
@@ -144,7 +142,7 @@ export default {
       const params = { sort: sort }
       if (this.deptName) { params['name'] = this.deptName }
       getDepts(params).then(res => {
-        this.depts = res.content
+        this.depts = res.data
       })
     },
     handleNodeClick(data) {

@@ -1,7 +1,5 @@
 <template>
   <div class="app-container">
-    <!--form 组件-->
-    <eForm ref="form" :is-add="isAdd" :dicts="dict.user_status"/>
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
@@ -10,33 +8,55 @@
         </div>
         <el-tree :data="depts" :props="defaultProps" :expand-on-click-node="false" default-expand-all @node-click="handleNodeClick"/>
       </el-col>
-      <!--用户数据-->
       <el-col :xs="15" :sm="18" :md="20" :lg="20" :xl="20">
         <!--工具栏-->
         <div class="head-container">
           <!-- 搜索 -->
           <el-input v-model="query.blurry" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
+          <el-date-picker
+            v-model="year"
+            type="year"
+            placeholder="选择年"
+            style="top:-3px;"/>
+          <el-select v-model="month" placeholder="选择月" style="top:-3px;">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
         </div>
-        <!--表格渲染-->
-        <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-          <el-table-column prop="jobNumber" label="工号"/>
-          <el-table-column prop="staffName" label="姓名"/>
-          <el-table-column prop="dptName" label="部门"/>
-          <el-table-column prop="telephone" label="电话"/>
-          <el-table-column prop="email" label="邮箱"/>
-          <el-table-column prop="baseSalary" label="底薪"/>
-          <el-table-column prop="perf" label="绩效"/>
-          <el-table-column prop="remark" label="备注"/>
-        </el-table>
-        <!--分页组件-->
-        <el-pagination
-          :total="total"
-          :current-page="page + 1"
-          style="margin-top: 8px;"
-          layout="total, prev, pager, next, sizes"
-          @size-change="sizeChange"
-          @current-change="pageChange"/>
+        <el-tabs type="border-card">
+          <el-tab-pane label="列表模式">
+            <!--表格渲染-->
+            <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
+              <el-table-column prop="workerNo" label="工号"/>
+              <el-table-column prop="name" label="姓名"/>
+              <el-table-column prop="depName" label="部门" width="120"/>
+              <el-table-column prop="position" label="岗位"/>
+              <el-table-column prop="scheduleName" label="班次"/>
+              <el-table-column prop="workerDate" label="工作日"/>
+              <el-table-column prop="checkInTime" label="上班刷卡时间"/>
+              <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
+              <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>
+              <el-table-column prop="checkOutStatusStr" label="下班刷卡状态"/>
+            </el-table>
+            <!--分页组件-->
+            <el-pagination
+              :total="total"
+              :current-page="page + 1"
+              style="margin-top: 8px;"
+              layout="total, prev, pager, next, sizes"
+              @size-change="sizeChange"
+              @current-change="pageChange"/>
+          </el-tab-pane>
+          <el-tab-pane label="图表模式">
+            <el-col :xs="15" :sm="18" :md="20" :lg="20" :xl="20">
+              123
+            </el-col>
+          </el-tab-pane>
+        </el-tabs>
       </el-col>
     </el-row>
   </div>
@@ -48,15 +68,16 @@ import initData from '@/mixins/initData'
 import { del, downloadUser, edit } from '@/api/user'
 import { getDepts } from '@/api/dept'
 import { parseTime, downloadFile } from '@/utils/index'
-import eForm from './form'
+
 export default {
-  name: 'User',
-  components: { eForm },
+  name: 'ReportStaff',
   mixins: [initData],
   // 设置数据字典
   dicts: ['user_status'],
   data() {
     return {
+      year: '',
+      month: '',
       deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
       delLoading: false,
@@ -65,7 +86,44 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'dptName'
-      }
+      },
+      options: [{
+        value: 1,
+        label: '1月份'
+      }, {
+        value: 2,
+        label: '2月份'
+      }, {
+        value: 3,
+        label: '3月份'
+      }, {
+        value: 4,
+        label: '4月份'
+      }, {
+        value: 5,
+        label: '5月份'
+      }, {
+        value: 6,
+        label: '6月份'
+      }, {
+        value: 7,
+        label: '7月份'
+      }, {
+        value: 8,
+        label: '8月份'
+      }, {
+        value: 9,
+        label: '9月份'
+      }, {
+        value: 10,
+        label: '10月份'
+      }, {
+        value: 11,
+        label: '11月份'
+      }, {
+        value: 12,
+        label: '12月份'
+      }]
     }
   },
   created() {
@@ -84,7 +142,7 @@ export default {
     parseTime,
     checkPermission,
     beforeInit() {
-      this.url = 'api/crewInfo'
+      this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
       const sort = 'id,desc'
       const query = this.query
       const deptName = this.deptName
@@ -94,8 +152,8 @@ export default {
       if (blurry) { this.params['blurry'] = blurry }
       if (deptName) { this.params['deptName'] = deptName }
       if (query.date) {
-        this.params['startTime'] = query.date[0]
-        this.params['endTime'] = query.date[1]
+        this.params['startDate'] = query.date[0]
+        this.params['endDate'] = query.date[1]
       }
       if (enabled !== '' && enabled !== null) { this.params['enabled'] = enabled }
       return true
@@ -147,7 +205,7 @@ export default {
     },
     add() {
       this.isAdd = true
-      this.$refs.form.getDepts()
+      this.$refs.form.getAttendanceDailyInfoList()
       this.$refs.form.getRoles()
       this.$refs.form.getRoleLevel()
       this.$refs.form.dialog = true
@@ -168,7 +226,7 @@ export default {
       this.isAdd = false
       const _this = this.$refs.form
       _this.getRoles()
-      _this.getDepts()
+      _this.getAttendanceDailyInfoList()
       _this.getRoleLevel()
       _this.roleIds = []
       _this.form = { id: data.id, username: data.username, phone: data.phone, email: data.email, enabled: data.enabled.toString(), roles: [], dept: { id: data.dept.id }, job: { id: data.job.id }}

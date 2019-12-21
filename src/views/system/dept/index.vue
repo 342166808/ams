@@ -20,8 +20,8 @@
     <eForm ref="form" :is-add="isAdd" :dicts="dict.dept_status"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :default-expand-all="expand" :data="data" row-key="id" size="small">
-      <el-table-column label="编号" prop="dptNumber"/>
-      <el-table-column label="名称" prop="dptName"/>
+      <el-table-column label="编号" prop="dptNumber" width="120px"/>
+      <el-table-column label="名称" prop="dptName" width="220px"/>
       <el-table-column label="备注" prop="remark"/>
       <el-table-column v-if=" false /*checkPermission(['admin','dept:edit','dept:del'])*/" label="操作" width="130px" align="center" fixed="right">
         <template slot-scope="scope">
