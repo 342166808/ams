@@ -101,10 +101,10 @@ export default {
       const enabled = query.enabled
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
       if (blurry) { this.params['blurry'] = blurry }
-      if (deptName) { this.params['deptName'] = deptName }
+      if (deptName) { this.params['DeptName'] = deptName }
       if (query.date) {
-        this.params['startDate'] = query.date[0]
-        this.params['endDate'] = query.date[1]
+        this.params['StartDate'] = query.date[0]
+        this.params['EndDate'] = query.date[1]
       }
       if (enabled !== '' && enabled !== null) { this.params['enabled'] = enabled }
       return true
@@ -141,7 +141,7 @@ export default {
     getDeptDatas() {
       const sort = 'id,desc'
       const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
+      if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {
         this.depts = res.data
       })

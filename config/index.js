@@ -3,6 +3,7 @@
 const devEnv = require('./dev.env')
 // 获取接口地址
 const base_url = devEnv.BASE_API.replace(/"/g,'')
+const base_auth_url = devEnv.BASE_AUTH_API.replace(/"/g,'')
 const path = require('path')
 module.exports = {
   dev: {
@@ -13,7 +14,7 @@ module.exports = {
     proxyTable: {
       '/auth': {
         // 测试环境
-        target: base_url,
+        target: base_auth_url,
         secure: true,
         changeOrigin: true
       },

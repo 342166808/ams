@@ -22,16 +22,16 @@
               :value="item.value"/>
           </el-select>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-setting" @click="toQuery">设置</el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit-outline" @click="toQuery">生成</el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toQuery">保存</el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-setting" @click="toSetting">设置</el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit-outline" @click="toCreate">生成</el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toSave">保存</el-button>
         </div>
         <!--表格渲染-->
-        <el-table v-loading="loading" :data="data" size="small" >
+        <el-table v-loading="loading" :data="data" size="small" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"/>
-          <el-table-column prop="" width="120px" label="日期"/>
-          <el-table-column prop="" width="120px" label="星期"/>
-          <el-table-column prop="" label="日期类型"/>
+          <el-table-column prop="workDateStr" width="120px" label="日期"/>
+          <el-table-column prop="weekday" width="120px" label="星期"/>
+          <el-table-column prop="weekdayType" label="日期类型"/>
         </el-table>
         <!--分页组件-->
         <el-pagination
@@ -49,9 +49,7 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
-import { del, downloadUser, edit } from '@/api/user'
-import { getDepts } from '@/api/dept'
-import { parseTime, downloadFile } from '@/utils/index'
+import { getWorkCalendar, setWorkDateType, createWorkCalendar } from '@/api/workCalendar'
 
 export default {
   name: 'WorkCalendar',
@@ -60,7 +58,7 @@ export default {
   dicts: ['user_status'],
   data() {
     return {
-      dateType: '',
+      dateType: 0,
       deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
       delLoading: false,
@@ -71,6 +69,9 @@ export default {
         label: 'name'
       },
       options: [{
+        value: 0,
+        label: '请选择日期类型'
+      }, {
         value: 1,
         label: '工作日'
       }, {
@@ -79,11 +80,11 @@ export default {
       }, {
         value: 3,
         label: '节假日'
-      }]
+      }],
+      multipleSelection: []
     }
   },
   created() {
-    this.getDeptDatas()
     this.$nextTick(() => {
       this.init()
     })
@@ -95,18 +96,14 @@ export default {
     }
   },
   methods: {
-    parseTime,
     checkPermission,
     beforeInit() {
-      this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
+      this.url = 'api/SystemConfig/GetWorkCalendar'
       const sort = 'id,desc'
       const query = this.query
-      const deptName = this.deptName
-      const blurry = query.blurry
       const enabled = query.enabled
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (blurry) { this.params['blurry'] = blurry }
-      if (deptName) { this.params['deptName'] = deptName }
+      if (this.dateType > 0) { this.params['WorkDateType'] = this.dateType }
       if (query.date) {
         this.params['startDate'] = query.date[0]
         this.params['endDate'] = query.date[1]
@@ -114,106 +111,29 @@ export default {
       if (enabled !== '' && enabled !== null) { this.params['enabled'] = enabled }
       return true
     },
-    // 导出
-    download() {
-      this.beforeInit()
-      this.downloadLoading = true
-      downloadUser(this.params).then(result => {
-        downloadFile(result, '用户列表', 'xlsx')
-        this.downloadLoading = false
-      }).catch(() => {
-        this.downloadLoading = false
-      })
-    },
-    subDelete(id) {
-      this.delLoading = true
-      del(id).then(res => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-        this.dleChangePage()
-        this.init()
-        this.$notify({
-          title: '删除成功',
-          type: 'success',
-          duration: 2500
-        })
+    toSetting() {
+      if (this.multipleSelection.length == 0) {
+        alert('请选择数据行')
+        return
+      }
+      setWorkDateType({
+        WorkDateList: this.multipleSelection
+      }).then(res => {
+        if (res.executeState) {
+          alert('设置成功！')
+        } else {
+          alert(res.tipMessage)
+        }
       }).catch(err => {
-        this.delLoading = false
-        this.$refs[id].doClose()
         console.log(err.response.data.message)
       })
     },
-    getDeptDatas() {
-      const sort = 'id,desc'
-      const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
-      getDepts(params).then(res => {
-        this.depts = res.content
-      })
+    toCreate() {
+
     },
-    handleNodeClick(data) {
-      if (data.pid === 0) {
-        this.deptId = null
-      } else {
-        this.deptId = data.id
-      }
-      this.init()
-    },
-    add() {
-      this.isAdd = true
-      this.$refs.form.getAttendanceDailyInfoList()
-      this.$refs.form.getRoles()
-      this.$refs.form.getRoleLevel()
-      this.$refs.form.dialog = true
-    },
-    // 数据转换
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v => filterVal.map(j => {
-        if (j === 'createTime' || j === 'lastPasswordResetTime') {
-          return parseTime(v[j])
-        } else if (j === 'enabled') {
-          return parseTime(v[j]) ? '启用' : '禁用'
-        } else {
-          return v[j]
-        }
-      }))
-    },
-    edit(data) {
-      this.isAdd = false
-      const _this = this.$refs.form
-      _this.getRoles()
-      _this.getAttendanceDailyInfoList()
-      _this.getRoleLevel()
-      _this.roleIds = []
-      _this.form = { id: data.id, username: data.username, phone: data.phone, email: data.email, enabled: data.enabled.toString(), roles: [], dept: { id: data.dept.id }, job: { id: data.job.id }}
-      data.roles.forEach(function(data, index) {
-        _this.roleIds.push(data.id)
-      })
-      _this.deptId = data.dept.id
-      _this.jobId = data.job.id
-      _this.getJobs(_this.deptId)
-      _this.dialog = true
-    },
-    // 改变状态
-    changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        edit(data).then(res => {
-          this.$notify({
-            title: this.dict.label.user_status[val] + '成功',
-            type: 'success',
-            duration: 2500
-          })
-        }).catch(err => {
-          data.enabled = !data.enabled
-          console.log(err.response.data.message)
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
+    toSave() {},
+    handleSelectionChange(val) {
+      this.multipleSelection = val
     }
   }
 }
