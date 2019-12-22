@@ -74,7 +74,7 @@ export default {
     parseTime,
     checkPermission,
     beforeInit() {
-      this.url = 'api/departmentInfo'
+      this.url = 'api/DepartmentManage/SearchDepartmentInfo'
       const sort = 'dptNumber,dptName'
       this.params = { value: this.dptName, page: this.page, size: this.size, sort: sort }
       const query = this.query

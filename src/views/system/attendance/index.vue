@@ -32,7 +32,8 @@
           <el-table-column prop="depName" label="部门" width="120"/>
           <el-table-column prop="position" label="岗位"/>
           <el-table-column prop="scheduleName" label="班次"/>
-          <el-table-column prop="dayOfTheWeekStr" label="工作日"/>
+          <el-table-column prop="workerDateStr" label="工作日"/>
+          <el-table-column prop="dayOfTheWeekStr" label="星期"/>
           <el-table-column prop="checkInTime" label="上班刷卡时间"/>
           <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
           <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>

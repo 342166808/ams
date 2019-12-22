@@ -84,14 +84,14 @@ export default {
     parseTime,
     checkPermission,
     beforeInit() {
-      this.url = 'api/crewInfo'
+      this.url = 'api/CrewManage/SearchCrewInfo'
       const sort = 'id,desc'
       const query = this.query
       const deptName = this.deptName
       const blurry = query.blurry
       const enabled = query.enabled
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (blurry) { this.params['blurry'] = blurry }
+      if (blurry) { this.params['blurryStr'] = blurry }
       if (deptName) { this.params['deptName'] = deptName }
       if (query.date) {
         this.params['startTime'] = query.date[0]

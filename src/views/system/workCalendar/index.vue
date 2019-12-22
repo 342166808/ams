@@ -27,10 +27,10 @@
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toQuery">保存</el-button>
         </div>
         <!--表格渲染-->
-        <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
+        <el-table v-loading="loading" :data="data" size="small" >
           <el-table-column type="selection" width="55"/>
-          <el-table-column prop="" label="日期"/>
-          <el-table-column prop="" label="星期"/>
+          <el-table-column prop="" width="120px" label="日期"/>
+          <el-table-column prop="" width="120px" label="星期"/>
           <el-table-column prop="" label="日期类型"/>
         </el-table>
         <!--分页组件-->
