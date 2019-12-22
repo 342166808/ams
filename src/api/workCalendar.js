@@ -31,10 +31,10 @@ export function setWorkDateType(data) {
  * @param data
  * @constructor
  */
-export function createWorkCalendar(data) {
+export function createWorkCalendar(params) {
   return request({
-    url: '/api/CreateWorkCalendar',
-    method: 'post',
-    data
+    url: '/api/SystemConfig/CreateWorkCalendar',
+    method: 'get',
+    params
   })
 }

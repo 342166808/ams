@@ -31,7 +31,7 @@
           <el-table-column type="selection" width="55"/>
           <el-table-column prop="workDateStr" width="120px" label="日期"/>
           <el-table-column prop="weekday" width="120px" label="星期"/>
-          <el-table-column prop="weekdayType" label="日期类型"/>
+          <el-table-column prop="weekdayTypeStr" label="日期类型"/>
         </el-table>
         <!--分页组件-->
         <el-pagination
@@ -112,15 +112,20 @@ export default {
       return true
     },
     toSetting() {
-      if (this.multipleSelection.length == 0) {
+      if (this.multipleSelection.length === 0) {
         alert('请选择数据行')
         return
+      }
+      for (var i = 0; i < this.multipleSelection.length; i++) {
+        this.multipleSelection[i].weekdayType = this.dateType
       }
       setWorkDateType({
         WorkDateList: this.multipleSelection
       }).then(res => {
         if (res.executeState) {
           alert('设置成功！')
+          this.dateType = 0
+          this.init()
         } else {
           alert(res.tipMessage)
         }
@@ -129,7 +134,28 @@ export default {
       })
     },
     toCreate() {
-
+      if (!this.query.date[0]) {
+        alert('请选择开始日期')
+        return
+      }
+      if (!this.query.date[1]) {
+        alert('请选择结束日期')
+        return
+      }
+      createWorkCalendar({
+        startDate: this.params['startDate'],
+        endDate: this.params['endDate']
+      }).then(res => {
+        if (res.executeState) {
+          alert('设置成功！')
+          this.dateType = 0
+          this.init()
+        } else {
+          alert(res.tipMessage)
+        }
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     },
     toSave() {},
     handleSelectionChange(val) {
