@@ -7,7 +7,7 @@ import request from '@/utils/request'
  */
 export function getWorkCalendar(params) {
   return request({
-    url: '/api/SystemConfig/GetWorkCalendar',
+    url: '/api/systemConfig/getWorkCalendar',
     method: 'get',
     params
   })
@@ -20,7 +20,7 @@ export function getWorkCalendar(params) {
  */
 export function setWorkDateType(data) {
   return request({
-    url: '/api/SystemConfig/SetWorkDateType',
+    url: '/api/systemConfig/setWorkDateType',
     method: 'post',
     data
   })
@@ -33,7 +33,7 @@ export function setWorkDateType(data) {
  */
 export function createWorkCalendar(params) {
   return request({
-    url: '/api/SystemConfig/CreateWorkCalendar',
+    url: '/api/systemConfig/createWorkCalendar',
     method: 'get',
     params
   })

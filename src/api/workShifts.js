@@ -7,7 +7,7 @@ import request from '@/utils/request'
  */
 export function getWorkShiftsList(params) {
   return request({
-    url: '/api/ShiftsManagement/GetWorkShiftsList',
+    url: '/api/shiftsManagement/getWorkshiftsList',
     method: 'get',
     params
   })
@@ -20,7 +20,7 @@ export function getWorkShiftsList(params) {
  */
 export function getWorkShiftsInfo(params) {
   return request({
-    url: '/api/ShiftsManagement/GetWorkShiftsInfo',
+    url: '/api/shiftsManagement/getWorkShiftsInfo',
     method: 'get',
     params
   })
@@ -33,7 +33,7 @@ export function getWorkShiftsInfo(params) {
  */
 export function updateWorkShifts(params) {
   return request({
-    url: '/api/ShiftsManagement/UpdateWorkShifts',
+    url: '/api/shiftsManagement/updateWorkshifts',
     method: 'get',
     params
   })
@@ -46,7 +46,7 @@ export function updateWorkShifts(params) {
  */
 export function deleteWorkShifts(params) {
   return request({
-    url: '/api/ShiftsManagement/DeleteWorkShifts',
+    url: '/api/shiftsManagement/deleteWorkshifts',
     method: 'get',
     params
   })
