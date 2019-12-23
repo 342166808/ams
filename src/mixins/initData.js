@@ -17,6 +17,9 @@ export default {
           if (res.data && res.data.pageIndex) {
             this.total = res.data.totalcount
             this.data = res.data.data
+          } else if (res.data && res.data.page) {
+            this.total = res.data.totalcount
+            this.data = res.data.data
           } else {
             this.data = res.data
           }

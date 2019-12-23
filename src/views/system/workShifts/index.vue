@@ -100,7 +100,7 @@ export default {
     checkPermission,
     beforeInit() {
       this.url = 'api/ShiftsManagement/GetWorkShiftsList'
-      const sort = 'id,desc'
+      const sort = 'workShiftType asc'
       const workShiftType = this.workShiftType
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
       if (workShiftType) { this.params['workShiftType'] = workShiftType }
@@ -135,11 +135,8 @@ export default {
       this.$refs.form.dialog = true
     },
     edit(data) {
-      // TODO:参数绑定
-      alert(123)
       this.isAdd = false
       const _this = this.$refs.form
-      debugger
       _this.form = {
         id: data.id,
         onTime: data.firstStartTime,

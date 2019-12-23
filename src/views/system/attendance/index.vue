@@ -89,7 +89,7 @@ export default {
     checkPermission,
     beforeInit() {
       this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
-      const sort = 'workerNo workerDateStr'
+      const sort = 'workerNo, workerdate asc'
       const query = this.query
       const deptName = this.deptName
       const blurry = query.blurry
