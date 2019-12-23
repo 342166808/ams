@@ -14,10 +14,10 @@ export default {
       return new Promise((resolve, reject) => {
         this.loading = true
         initData(this.url, this.params).then(res => {
-          if(res.data && res.data.pageIndex){
+          if (res.data && res.data.pageIndex) {
             this.total = res.data.totalcount
             this.data = res.data.data
-          }else {
+          } else {
             this.data = res.data
           }
           setTimeout(() => {

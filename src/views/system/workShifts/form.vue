@@ -3,8 +3,8 @@
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
       <el-row>
         <el-col span="20">
-          <el-form-item label="部门名称">
-            <el-input style="width: 170px;"/>
+          <el-form-item label="班次类型">
+            <el-input v-model="form.workShiftType" style="width: 170px;"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -12,7 +12,7 @@
         <el-col span="10">
           <el-form-item label="上班有效时间">
             <el-time-select
-              v-model="onTime"
+              v-model="form.onTime"
               :picker-options="{
                 step: '00:10',
                 start: '08:00',
@@ -25,11 +25,11 @@
         <el-col span="10">
           <el-form-item label="下班有效时间">
             <el-time-select
-              v-model="offTime"
+              v-model="form.offTime"
               :picker-options="{
                 step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                start: '16:30',
+                end: '20:00'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -40,7 +40,7 @@
         <el-col span="10">
           <el-form-item label="第一段上班卡">
             <el-time-select
-              v-model="firstOnTime"
+              v-model="form.firstOnTime"
               :picker-options="{
                 step: '00:10',
                 start: '08:00',
@@ -53,11 +53,11 @@
         <el-col span="10">
           <el-form-item label="第一段下班卡">
             <el-time-select
-              v-model="firstOffTime"
+              v-model="form.firstOffTime"
               :picker-options="{
                 step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                start: '12:00',
+                end: '13:30'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -68,11 +68,11 @@
         <el-col span="10">
           <el-form-item label="第二段上班卡">
             <el-time-select
-              v-model="secondOnTime"
+              v-model="form.secondOnTime"
               :picker-options="{
                 step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                start: '13:30',
+                end: '14:00'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -81,11 +81,11 @@
         <el-col span="10">
           <el-form-item label="第二段下班卡">
             <el-time-select
-              v-model="secondOffTime"
+              v-model="form.secondOffTime"
               :picker-options="{
                 step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                start: '16:30',
+                end: '20:00'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -95,7 +95,7 @@
       <el-row>
         <el-col span="10">
           <el-form-item label="加班类型">
-            <el-select v-model="overtimeType" placeholder="选择加班类型" style=" width: 170px;">
+            <el-select v-model="form.overtimeType" placeholder="选择加班类型" style=" width: 170px;">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -106,7 +106,26 @@
         </el-col>
         <el-col span="10">
           <el-form-item label="加班最小值">
-            <el-input-number v-model="overtimeHour" :min="1" :max="10" label="单位小时" style=" width: 170px;"/>
+            <el-input-number v-model="form.minOvertime" :min="60" :step="30" :max="180" style=" width: 170px;"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col span="10">
+          <el-form-item label="工作日加班倍率">
+            <el-input-number v-model="form.workingDayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
+          </el-form-item>
+        </el-col>
+        <el-col span="10">
+          <el-form-item label="周末加班倍率">
+            <el-input-number v-model="form.playdayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col span="10">
+          <el-form-item label="节假日加班倍率">
+            <el-input-number v-model="form.holidayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -119,7 +138,7 @@
 </template>
 
 <script>
-import { add, edit } from '@/api/dict'
+import { updateWorkShifts } from '@/api/workShifts'
 export default {
   props: {
     isAdd: {
@@ -129,28 +148,35 @@ export default {
   },
   data() {
     return {
-      onTime: '08:00',
-      offTime: '16:30',
-      firstOnTime: '08:00',
-      firstOffTime: '12:00',
-      secondOnTime: '13:30',
-      secondOffTime: '16:30',
-      overtimeType: 1,
-      overtimeHour: 1,
       loading: false,
       dialog: false,
       form: {
-        id: '',
-        name: '',
-        remark: ''
+        workShiftType: '',
+        onTime: '08:00',
+        offTime: '16:30',
+        firstOnTime: '08:00',
+        firstOffTime: '12:00',
+        secondOnTime: '13:30',
+        secondOffTime: '16:30',
+        overtimeType: 1,
+        minOvertime: 1,
+        workingDayOvertimeRate: 1,
+        playdayOvertimeRate: 1,
+        holidayOvertimeRate: 1
       },
       options: [{
         value: 1,
         label: '加班计调休'
       }, {
         value: 2,
-        label: '加班费'
-      }]
+        label: '加班计加班费'
+      }],
+      rules: {
+        workShiftType: [
+          { required: true, message: '班次类型', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -160,15 +186,29 @@ export default {
     doSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
+          this.form.EffectiveStartHour = this.form.onTime.split(':')[0]
+          this.form.EffectiveStartMin = this.form.onTime.split(':')[1]
+          this.form.EffectiveEndHour = this.form.offTime.split(':')[0]
+          this.form.EffectiveEndMin = this.form.offTime.split(':')[1]
+          this.form.FirstStartHour = this.form.firstOnTime.split(':')[0]
+          this.form.FirstStartMin = this.form.firstOnTime.split(':')[1]
+          this.form.FirstEndHour = this.form.firstOffTime.split(':')[0]
+          this.form.FirstEndMin = this.form.firstOffTime.split(':')[1]
+          this.form.SecondStartHour = this.form.secondOnTime.split(':')[0]
+          this.form.SecondStartMin = this.form.secondOnTime.split(':')[1]
+          this.form.SecondEndHour = this.form.secondOffTime.split(':')[0]
+          this.form.SecondEndMin = this.form.secondOffTime.split(':')[1]
           this.loading = true
           if (this.isAdd) {
             this.doAdd()
-          } else this.doEdit()
+          } else {
+            this.doEdit()
+          }
         }
       })
     },
     doAdd() {
-      add(this.form).then(res => {
+      updateWorkShifts(this.form).then(res => {
         this.resetForm()
         this.$notify({
           title: '添加成功',
@@ -183,7 +223,7 @@ export default {
       })
     },
     doEdit() {
-      edit(this.form).then(res => {
+      updateWorkShifts(this.form).then(res => {
         this.resetForm()
         this.$notify({
           title: '修改成功',
@@ -201,9 +241,18 @@ export default {
       this.dialog = false
       this.$refs['form'].resetFields()
       this.form = {
-        id: '',
-        name: '',
-        remark: ''
+        workShiftType: '',
+        onTime: '08:00',
+        offTime: '16:30',
+        firstOnTime: '08:00',
+        firstOffTime: '12:00',
+        secondOnTime: '13:30',
+        secondOffTime: '16:30',
+        overtimeType: 1,
+        minOvertime: 1,
+        workingDayOvertimeRate: 1,
+        playdayOvertimeRate: 1,
+        holidayOvertimeRate: 1
       }
     }
   }

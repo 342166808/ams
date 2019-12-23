@@ -34,7 +34,7 @@
               <el-table-column prop="depName" label="部门" width="120"/>
               <el-table-column prop="position" label="岗位"/>
               <el-table-column prop="scheduleName" label="班次"/>
-              <el-table-column prop="workerDate" label="工作日"/>
+              <el-table-column prop="workerDateStr" label="工作日"/>
               <el-table-column prop="checkInTime" label="上班刷卡时间"/>
               <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
               <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>
@@ -63,15 +63,12 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
-import { del, downloadUser, edit } from '@/api/user'
 import { getDepts } from '@/api/dept'
-import { parseTime, downloadFile } from '@/utils/index'
 
 export default {
   name: 'ReportDept',
   mixins: [initData],
   // 设置数据字典
-  dicts: ['user_status'],
   data() {
     return {
       year: '',
@@ -137,7 +134,6 @@ export default {
     }
   },
   methods: {
-    parseTime,
     checkPermission,
     beforeInit() {
       this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
@@ -153,37 +149,7 @@ export default {
         this.params['startDate'] = query.date[0]
         this.params['endDate'] = query.date[1]
       }
-      if (enabled !== '' && enabled !== null) { this.params['enabled'] = enabled }
       return true
-    },
-    // 导出
-    download() {
-      this.beforeInit()
-      this.downloadLoading = true
-      downloadUser(this.params).then(result => {
-        downloadFile(result, '用户列表', 'xlsx')
-        this.downloadLoading = false
-      }).catch(() => {
-        this.downloadLoading = false
-      })
-    },
-    subDelete(id) {
-      this.delLoading = true
-      del(id).then(res => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-        this.dleChangePage()
-        this.init()
-        this.$notify({
-          title: '删除成功',
-          type: 'success',
-          duration: 2500
-        })
-      }).catch(err => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-        console.log(err.response.data.message)
-      })
     },
     getDeptDatas() {
       const sort = 'id,desc'
@@ -194,68 +160,8 @@ export default {
       })
     },
     handleNodeClick(data) {
-      if (data.pid === 0) {
-        this.deptId = null
-      } else {
-        this.deptId = data.id
-      }
+      this.deptName = data.dptName
       this.init()
-    },
-    add() {
-      this.isAdd = true
-      this.$refs.form.getAttendanceDailyInfoList()
-      this.$refs.form.getRoles()
-      this.$refs.form.getRoleLevel()
-      this.$refs.form.dialog = true
-    },
-    // 数据转换
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v => filterVal.map(j => {
-        if (j === 'createTime' || j === 'lastPasswordResetTime') {
-          return parseTime(v[j])
-        } else if (j === 'enabled') {
-          return parseTime(v[j]) ? '启用' : '禁用'
-        } else {
-          return v[j]
-        }
-      }))
-    },
-    edit(data) {
-      this.isAdd = false
-      const _this = this.$refs.form
-      _this.getRoles()
-      _this.getAttendanceDailyInfoList()
-      _this.getRoleLevel()
-      _this.roleIds = []
-      _this.form = { id: data.id, username: data.username, phone: data.phone, email: data.email, enabled: data.enabled.toString(), roles: [], dept: { id: data.dept.id }, job: { id: data.job.id }}
-      data.roles.forEach(function(data, index) {
-        _this.roleIds.push(data.id)
-      })
-      _this.deptId = data.dept.id
-      _this.jobId = data.job.id
-      _this.getJobs(_this.deptId)
-      _this.dialog = true
-    },
-    // 改变状态
-    changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        edit(data).then(res => {
-          this.$notify({
-            title: this.dict.label.user_status[val] + '成功',
-            type: 'success',
-            duration: 2500
-          })
-        }).catch(err => {
-          data.enabled = !data.enabled
-          console.log(err.response.data.message)
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
     }
   }
 }

@@ -24,7 +24,7 @@
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-setting" @click="toSetting">设置</el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit-outline" @click="toCreate">生成</el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toSave">保存</el-button>
+          <!--<el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toSave">保存</el-button>-->
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" @selection-change="handleSelectionChange">
@@ -49,13 +49,11 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
-import { getWorkCalendar, setWorkDateType, createWorkCalendar } from '@/api/workCalendar'
+import { setWorkDateType, createWorkCalendar } from '@/api/workCalendar'
 
 export default {
   name: 'WorkCalendar',
   mixins: [initData],
-  // 设置数据字典
-  dicts: ['user_status'],
   data() {
     return {
       dateType: 0,
@@ -113,7 +111,11 @@ export default {
     },
     toSetting() {
       if (this.multipleSelection.length === 0) {
-        alert('请选择数据行')
+        this.$notify({
+          title: '请选择数据行',
+          type: 'error',
+          duration: 2500
+        })
         return
       }
       for (var i = 0; i < this.multipleSelection.length; i++) {
@@ -123,7 +125,11 @@ export default {
         WorkDateList: this.multipleSelection
       }).then(res => {
         if (res.executeState) {
-          alert('设置成功！')
+          this.$notify({
+            title: '设置成功',
+            type: 'success',
+            duration: 2500
+          })
           this.dateType = 0
           this.init()
         } else {
@@ -134,20 +140,32 @@ export default {
       })
     },
     toCreate() {
-      if (!this.query.date[0]) {
-        alert('请选择开始日期')
+      if (!this.query.date || !this.query.date[0]) {
+        this.$notify({
+          title: '请选择开始日期',
+          type: 'error',
+          duration: 2500
+        })
         return
       }
-      if (!this.query.date[1]) {
-        alert('请选择结束日期')
+      if (!this.query.date || !this.query.date[1]) {
+        this.$notify({
+          title: '请选择结束日期',
+          type: 'error',
+          duration: 2500
+        })
         return
       }
       createWorkCalendar({
-        startDate: this.params['startDate'],
-        endDate: this.params['endDate']
+        startDate: this.query.date[0],
+        endDate: this.query.date[1]
       }).then(res => {
         if (res.executeState) {
-          alert('设置成功！')
+          this.$notify({
+            title: '生成成功',
+            type: 'success',
+            duration: 2500
+          })
           this.dateType = 0
           this.init()
         } else {
@@ -157,7 +175,6 @@ export default {
         console.log(err.response.data.message)
       })
     },
-    toSave() {},
     handleSelectionChange(val) {
       this.multipleSelection = val
     }
