@@ -97,7 +97,7 @@ export default {
     checkPermission,
     beforeInit() {
       this.url = 'api/SystemConfig/GetWorkCalendar'
-      const sort = 'id,desc'
+      const sort = 'workDate asc'
       const query = this.query
       const enabled = query.enabled
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
@@ -110,6 +110,14 @@ export default {
       return true
     },
     toSetting() {
+      if (this.dateType === 0) {
+        this.$notify({
+          title: '请选择日期类型',
+          type: 'error',
+          duration: 2500
+        })
+        return
+      }
       if (this.multipleSelection.length === 0) {
         this.$notify({
           title: '请选择数据行',

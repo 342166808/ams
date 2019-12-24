@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+    <!--表单组件-->
+    <eForm ref="form" :is-add="isAdd"/>
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
@@ -9,23 +11,12 @@
     <!--表格渲染-->
     <el-table v-loading="loading" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :data="data" row-key="id" size="small">
       <el-table-column label="编号" prop="dptNumber" width="120px"/>
-      <el-table-column label="名称" prop="dptName" width="220px"/>
-      <el-table-column label="备注" prop="remark"/>
-      <el-table-column v-if=" false /*checkPermission(['admin','dept:edit','dept:del'])*/" label="操作" width="130px" align="center" fixed="right">
+      <el-table-column label="部门名称" prop="dptName" width="220px"/>
+      <el-table-column label="班次类型" prop="workShiftType" width="220px"/>
+      <el-table-column label="备注" prop="remark" width="210px"/>
+      <el-table-column v-if=" checkPermission(['admin','dept:edit','dept:del'])" label="操作" width="130px" align="center">
         <template slot-scope="scope">
           <el-button v-permission="['admin','dept:edit']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
-          <el-popover
-            v-permission="['admin','dept:del']"
-            :ref="scope.row.dptNumber"
-            placement="top"
-            width="180">
-            <p>确定删除本条数据吗？</p>
-            <div style="text-align: right; margin: 0">
-              <el-button size="mini" type="text" @click="$refs[scope.row.dptNumber].doClose()">取消</el-button>
-              <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.dptNumber)">确定</el-button>
-            </div>
-            <el-button slot="reference" :disabled="scope.row.dptNumber === 1" type="danger" icon="el-icon-delete" size="mini"/>
-          </el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -35,8 +26,11 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
+import eForm from './form'
+import { getDepts } from '@/api/dept'
 export default {
-  name: 'Dept',
+  name: 'DepartmentInfo',
+  components: { eForm },
   mixins: [initData],
   data() {
     return {
@@ -62,6 +56,27 @@ export default {
         this.params['endTime'] = query.date[1]
       }
       return true
+    },
+    edit(data) {
+      this.isAdd = false
+      const _this = this.$refs.form
+
+      getDepts({ dptName: data.dptName }).then(res => {
+        if (res.data.length === 0) {
+          alert('未找到部门数据')
+          return
+        }
+        _this.getWorkShifts()
+        _this.form = {
+          dptNumber: res.data[0].dptNumber,
+          dptName: res.data[0].dptName,
+          workShiftTypeId: res.data[0].workShiftType,
+          remark: res.data[0].remark
+        }
+        _this.dialog = true
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     }
   }
 }

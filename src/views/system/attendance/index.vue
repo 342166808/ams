@@ -27,17 +27,29 @@
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-          <el-table-column prop="workerNo" label="工号"/>
-          <el-table-column prop="name" label="姓名"/>
+          <el-table-column prop="workerNo" label="工号" fixed/>
+          <el-table-column prop="name" label="姓名" fixed/>
           <el-table-column prop="depName" label="部门" width="120"/>
-          <el-table-column prop="position" label="岗位"/>
-          <el-table-column prop="scheduleName" label="班次"/>
-          <el-table-column prop="workerDateStr" label="工作日"/>
-          <el-table-column prop="dayOfTheWeekStr" label="星期"/>
-          <el-table-column prop="checkInTime" label="上班刷卡时间"/>
-          <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
-          <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>
-          <el-table-column prop="checkOutStatusStr" label="下班刷卡状态"/>
+          <el-table-column prop="position" label="岗位" width="80"/>
+          <el-table-column prop="scheduleName" label="班次" width="80"/>
+          <el-table-column prop="workerDateStr" label="工作日" width="100"/>
+          <el-table-column prop="dayOfTheWeekStr" label="星期" width="90"/>
+          <el-table-column prop="checkInTime" label="上班刷卡时间" width="100"/>
+          <el-table-column prop="checkOutTime" label="下班刷卡时间" width="100"/>
+          <el-table-column prop="checkInStatusStr" label="上班刷卡状态" width="100">
+            <template slot-scope="scope">
+              <span v-if="scope.row.checkInStatus === 1" style="color: blue">迟到</span>
+              <span v-else-if="scope.row.checkInStatus === 2" style="color: red">缺卡</span>
+              <span v-else>正常</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="checkOutStatusStr" label="下班刷卡状态" width="100">
+            <template slot-scope="scope">
+              <span v-if="scope.row.checkOutStatus === 1" style="color: blue">迟到</span>
+              <span v-else-if="scope.row.checkOutStatus === 2" style="color: red">缺卡</span>
+              <span v-else>正常</span>
+            </template>
+          </el-table-column>
         </el-table>
         <!--分页组件-->
         <el-pagination

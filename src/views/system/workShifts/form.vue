@@ -29,7 +29,7 @@
               :picker-options="{
                 step: '00:10',
                 start: '16:30',
-                end: '20:00'
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -85,7 +85,7 @@
               :picker-options="{
                 step: '00:10',
                 start: '16:30',
-                end: '20:00'
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -240,20 +240,6 @@ export default {
     resetForm() {
       this.dialog = false
       this.$refs['form'].resetFields()
-      this.form = {
-        workShiftType: '',
-        onTime: '08:00',
-        offTime: '16:30',
-        firstOnTime: '08:00',
-        firstOffTime: '12:00',
-        secondOnTime: '13:30',
-        secondOffTime: '16:30',
-        overtimeType: 1,
-        minOvertime: 1,
-        workingDayOvertimeRate: 1,
-        playdayOvertimeRate: 1,
-        holidayOvertimeRate: 1
-      }
     }
   }
 }

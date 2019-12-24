@@ -56,7 +56,7 @@
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
 import eForm from './form'
-import { deleteWorkShifts } from '@/api/workShifts'
+import { deleteWorkShifts, getWorkShiftsInfo } from '@/api/workShifts'
 
 export default {
   name: 'WorkShifts',
@@ -137,22 +137,26 @@ export default {
     edit(data) {
       this.isAdd = false
       const _this = this.$refs.form
-      _this.form = {
-        id: data.id,
-        onTime: data.firstStartTime,
-        offTime: data.secondEndTime,
-        firstOnTime: data.firstStartTime,
-        firstOffTime: data.firstEndTime,
-        secondOnTime: data.secondStartTime,
-        secondOffTime: data.secondEndTime,
-        workShiftType: data.workShiftType,
-        overtimeType: data.overtimeType,
-        minOvertime: data.minOvertime,
-        workingDayOvertimeRate: data.workingDayOvertimeRate,
-        playdayOvertimeRate: data.playdayOvertimeRate,
-        holidayOvertimeRate: data.holidayOvertimeRate
-      }
-      _this.dialog = true
+      getWorkShiftsInfo({ id: data.id }).then(res => {
+        _this.form = {
+          id: res.data.id,
+          onTime: res.data.effectiveStartHour + ':' + res.data.effectiveStartMin,
+          offTime: res.data.effectiveEndHour + ':' + res.data.effectiveEndMin,
+          firstOnTime: res.data.firstStartHour + ':' + res.data.firstStartMin,
+          firstOffTime: res.data.firstEndHour + ':' + res.data.firstEndMin,
+          secondOnTime: res.data.secondStartHour + ':' + res.data.secondStartMin,
+          secondOffTime: res.data.secondEndHour + ':' + res.data.secondEndMin,
+          workShiftType: res.data.workShiftType,
+          overtimeType: res.data.overtimeType,
+          minOvertime: res.data.minOvertime,
+          workingDayOvertimeRate: res.data.workingDayOvertimeRate,
+          playdayOvertimeRate: res.data.playdayOvertimeRate,
+          holidayOvertimeRate: res.data.holidayOvertimeRate
+        }
+        _this.dialog = true
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     }
   }
 }

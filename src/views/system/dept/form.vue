@@ -1,14 +1,20 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增部门' : '编辑部门'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="form.name" style="width: 370px;"/>
+      <el-form-item label="部门名称" prop="name">
+        <el-input v-model="form.dptName" style="width: 370px;"/>
       </el-form-item>
-      <el-form-item v-if="form.pid !== 0" label="状态" prop="enabled">
-        <el-radio v-for="item in dicts" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
+      <el-form-item label="班次类型" prop="name">
+        <el-select v-model="form.workShiftTypeId" placeholder="请选择班次类型" style="width: 370px;">
+          <el-option
+            v-for="item in options"
+            :key="item.id"
+            :label="item.workShiftType"
+            :value="item.id"/>
+        </el-select>
       </el-form-item>
-      <el-form-item v-if="form.pid !== 0" style="margin-bottom: 0px;" label="上级部门">
-        <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级类目" />
+      <el-form-item label="备注" prop="name">
+        <el-input v-model="form.remark" style="width: 370px;"/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -19,18 +25,12 @@
 </template>
 
 <script>
-import { add, edit, getDepts } from '@/api/dept'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { editDepts } from '@/api/dept'
+import { getWorkShiftsList } from '@/api/workShifts'
 export default {
-  components: { Treeselect },
   props: {
     isAdd: {
       type: Boolean,
-      required: true
-    },
-    dicts: {
-      type: Array,
       required: true
     }
   },
@@ -38,17 +38,24 @@ export default {
     return {
       loading: false, dialog: false, depts: [],
       form: {
-        id: '',
-        name: '',
-        pid: 1,
-        enabled: 'true'
+        dptNumber: '',
+        dptName: '',
+        workShiftTypeId: 0,
+        remark: ''
       },
+      options: [],
       rules: {
-        name: [
-          { required: true, message: '请输入名称', trigger: 'blur' }
+        dptName: [
+          { required: true, message: '请输入部门名称', trigger: 'blur' }
+        ],
+        workShiftTypeId: [
+          { required: true, message: '请选择班次类型', trigger: 'blur' }
         ]
       }
     }
+  },
+  created() {
+
   },
   methods: {
     cancel() {
@@ -57,38 +64,19 @@ export default {
     doSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          if (this.form.pid !== undefined) {
-            this.loading = true
-            if (this.isAdd) {
-              this.doAdd()
-            } else this.doEdit()
+          this.loading = true
+          if (this.isAdd) {
+            this.doAdd()
           } else {
-            this.$message({
-              message: '上级部门不能为空',
-              type: 'warning'
-            })
+            this.doEdit()
           }
         }
       })
     },
     doAdd() {
-      add(this.form).then(res => {
-        this.resetForm()
-        this.$notify({
-          title: '添加成功',
-          type: 'success',
-          duration: 2500
-        })
-        this.loading = false
-        this.$parent.init()
-      }).catch(err => {
-        this.loading = false
-        console.log(err.response.data.message)
-      })
     },
     doEdit() {
-      edit(this.form).then(res => {
-        this.resetForm()
+      editDepts(this.form).then(res => {
         this.$notify({
           title: '修改成功',
           type: 'success',
@@ -101,20 +89,20 @@ export default {
         console.log(err.response.data.message)
       })
     },
+    getWorkShifts() {
+      getWorkShiftsList({ page: 0, size: 10000 }).then(res => {
+        if (res.data.totalcount === 0) {
+          return
+        }
+        this.options = res.data.data
+      }).catch(err => {
+        this.loading = false
+        console.log(err.response.data.message)
+      })
+    },
     resetForm() {
       this.dialog = false
       this.$refs['form'].resetFields()
-      this.form = {
-        id: '',
-        name: '',
-        pid: 1,
-        enabled: 'true'
-      }
-    },
-    getDepts() {
-      getDepts({ enabled: true }).then(res => {
-        this.depts = res.content
-      })
     }
   }
 }
