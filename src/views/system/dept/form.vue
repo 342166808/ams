@@ -5,7 +5,7 @@
         <el-input v-model="form.dptName" style="width: 370px;"/>
       </el-form-item>
       <el-form-item label="班次类型" prop="name">
-        <el-select v-model="form.workShiftTypeId" placeholder="请选择班次类型" style="width: 370px;">
+        <el-select v-model="form.workShiftsId" placeholder="请选择班次类型" style="width: 370px;">
           <el-option
             v-for="item in options"
             :key="item.id"
@@ -38,9 +38,10 @@ export default {
     return {
       loading: false, dialog: false, depts: [],
       form: {
+        id: 0,
         dptNumber: '',
         dptName: '',
-        workShiftTypeId: 0,
+        workShiftsId: 0,
         remark: ''
       },
       options: [],
@@ -48,7 +49,7 @@ export default {
         dptName: [
           { required: true, message: '请输入部门名称', trigger: 'blur' }
         ],
-        workShiftTypeId: [
+        workShiftsId: [
           { required: true, message: '请选择班次类型', trigger: 'blur' }
         ]
       }
@@ -77,6 +78,11 @@ export default {
     },
     doEdit() {
       editDepts(this.form).then(res => {
+        if (!res.executeState) {
+          alert(res.tipMessage)
+          return
+        }
+        this.resetForm()
         this.$notify({
           title: '修改成功',
           type: 'success',

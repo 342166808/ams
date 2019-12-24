@@ -60,17 +60,21 @@ export default {
     edit(data) {
       this.isAdd = false
       const _this = this.$refs.form
-
       getDepts({ dptName: data.dptName }).then(res => {
         if (res.data.length === 0) {
           alert('未找到部门数据')
           return
         }
+        if (res.data.length !== 1) {
+          alert('找到多笔部门数据，未能执行更新')
+          return
+        }
         _this.getWorkShifts()
         _this.form = {
+          id: res.data[0].id,
           dptNumber: res.data[0].dptNumber,
           dptName: res.data[0].dptName,
-          workShiftTypeId: res.data[0].workShiftType,
+          workShiftsId: res.data[0].workShiftsId,
           remark: res.data[0].remark
         }
         _this.dialog = true

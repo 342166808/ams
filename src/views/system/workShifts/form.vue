@@ -209,6 +209,10 @@ export default {
     },
     doAdd() {
       updateWorkShifts(this.form).then(res => {
+        if (!res.executeState) {
+          alert(res.tipMessage)
+          return
+        }
         this.resetForm()
         this.$notify({
           title: '添加成功',
@@ -224,6 +228,10 @@ export default {
     },
     doEdit() {
       updateWorkShifts(this.form).then(res => {
+        if (!res.executeState) {
+          alert(res.tipMessage)
+          return
+        }
         this.resetForm()
         this.$notify({
           title: '修改成功',

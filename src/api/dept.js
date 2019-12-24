@@ -16,10 +16,10 @@ export function searchDepts(params) {
   })
 }
 
-export function editDepts(params) {
+export function editDepts(data) {
   return request({
-    url: '/api/departmentManage/searchDepartmentInfo',
-    method: 'get',
-    params
+    url: '/api/departmentManage/editDepartmentInfo',
+    method: 'post',
+    data
   })
 }
