@@ -11,8 +11,6 @@
       <el-col :xs="15" :sm="18" :md="20" :lg="20" :xl="20">
         <!--工具栏-->
         <div class="head-container">
-          <!-- 搜索 -->
-          <el-input v-model="query.blurry" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
           <el-date-picker
             v-model="year"
             type="year"
@@ -31,21 +29,19 @@
           <el-tab-pane label="列表模式">
             <!--表格渲染-->
             <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-              <el-table-column prop="workerNo" label="工号"/>
-              <el-table-column prop="name" label="姓名"/>
-              <el-table-column prop="depName" label="部门" width="120"/>
-              <el-table-column prop="postName" label="岗位"/>
+              <el-table-column prop="deptName" label="部门名称"/>
               <el-table-column prop="overtimeHours" label="加班时长"/>
-              <el-table-column prop="workingDays" label="出勤天数"/>
-              <el-table-column prop="lateTimes" label="迟到次数"/>
               <el-table-column prop="leaveEarlyTimes" label="早退次数"/>
-              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
-              <el-table-column prop="leaveTimes" label="请假次数"/>
               <el-table-column prop="convertOvertimeHours" label="折算后加班时长"/>
-              <el-table-column prop="totalPlayDays" label="总休息日天数"/>
-              <el-table-column prop="summaryDate" label="汇总天数"/>
-              <el-table-column prop="totalWorkingDays" label="总工作日天数"/>
-              <el-table-column prop="totalHolidayDays" label="总节假日天数"/>
+              <el-table-column prop="totalPlayDays" label="总休息天数"/>
+              <el-table-column prop="summaryDate" label="汇总月份"/>
+              <el-table-column prop="deptStaffCount" label="部门人员数量"/>
+              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
+              <el-table-column prop="lateTimes" label="迟到次数"/>
+              <el-table-column prop="leaveTimes" label="请假次数"/>
+              <el-table-column prop="totalWorkingDays" label="总工作日"/>
+              <el-table-column prop="totalHolidayDays" label="总节假日"/>
+              <el-table-column prop="totalDays" label="总天数"/>
               <el-table-column prop="overtimePay" label="加班费"/>
             </el-table>
             <!--分页组件-->
@@ -74,8 +70,9 @@ import initData from '@/mixins/initData'
 import { getDepts } from '@/api/dept'
 
 export default {
-  name: 'ReportStaff',
+  name: 'ReportDept',
   mixins: [initData],
+  // 设置数据字典
   data() {
     return {
       year: '2019',
@@ -143,15 +140,14 @@ export default {
   methods: {
     checkPermission,
     beforeInit() {
-      this.url = 'api/attendanceManage/getAttendanceSummaryList'
-      const sort = 'deptName asc'
+      this.url = 'api/attendanceManage/getAttendanceDeptSummaryList'
+      const sort = 'deptName desc'
       let searchType = 1
-      const query = this.query
       const deptName = this.deptName
-      const blurry = query.blurry
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (blurry) { this.params['work'] = blurry }
-      if (deptName) { this.params['deptName'] = deptName }
+      if (deptName) {
+        this.params['deptName'] = deptName
+      }
       if (this.year) {
         this.params['year'] = this.year
       }
@@ -159,16 +155,13 @@ export default {
         this.params['month'] = this.month
         searchType = 2
       }
-      if (query.date) {
-        this.params['startDate'] = query.date[0]
-        this.params['endDate'] = query.date[1]
-      }
+      this.params['searchType'] = searchType
       return true
     },
     getDeptDatas() {
       const sort = 'id,desc'
       const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
+      if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {
         this.depts = res.data
       })

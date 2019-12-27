@@ -29,16 +29,17 @@
           <el-tab-pane label="列表模式">
             <!--表格渲染-->
             <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-              <el-table-column prop="workerNo" label="工号"/>
-              <el-table-column prop="name" label="姓名"/>
-              <el-table-column prop="depName" label="部门" width="120"/>
-              <el-table-column prop="position" label="岗位"/>
-              <el-table-column prop="scheduleName" label="班次"/>
-              <el-table-column prop="workerDateStr" label="工作日"/>
-              <el-table-column prop="checkInTime" label="上班刷卡时间"/>
-              <el-table-column prop="checkOutTime" label="下班刷卡时间"/>
-              <el-table-column prop="checkInStatusStr" label="上班刷卡状态"/>
-              <el-table-column prop="checkOutStatusStr" label="下班刷卡状态"/>
+              <el-table-column prop="deptName" label="部门名称"/>
+              <el-table-column prop="overtimeHours" label="加班时长"/>
+              <el-table-column prop="leaveEarlyTimes" label="早退次数"/>
+              <el-table-column prop="convertOvertimeHours" label="折算后加班时长"/>
+              <el-table-column prop="summaryDate" label="汇总日期"/>
+              <el-table-column prop="workDateTypeStr" label="日期类型"/>
+              <el-table-column prop="deptStaffCount" label="部门人员数量"/>
+              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
+              <el-table-column prop="lateTimes" label="迟到次数"/>
+              <el-table-column prop="leaveTimes" label="请假次数"/>
+              <el-table-column prop="overtimePay" label="加班费"/>
             </el-table>
             <!--分页组件-->
             <el-pagination
@@ -63,7 +64,6 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
-import { getDepts } from '@/api/dept'
 
 export default {
   name: 'ReportDept',
@@ -136,28 +136,22 @@ export default {
   methods: {
     checkPermission,
     beforeInit() {
-      this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
-      const sort = 'id,desc'
-      const query = this.query
+      this.url = 'api/attendanceManage/getAttendanceDeptSummaryList'
+      const sort = 'deptName desc'
+      const searchType = 2
       const deptName = this.deptName
-      const blurry = query.blurry
-      const enabled = query.enabled
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (blurry) { this.params['blurry'] = blurry }
-      if (deptName) { this.params['deptName'] = deptName }
-      if (query.date) {
-        this.params['startDate'] = query.date[0]
-        this.params['endDate'] = query.date[1]
+      if (deptName) {
+        this.params['deptName'] = deptName
       }
+      if (this.year) {
+        this.params['year'] = this.year
+      }
+      if (this.month) {
+        this.params['year'] = this.month
+      }
+      this.params['searchType'] = searchType
       return true
-    },
-    getDeptDatas() {
-      const sort = 'id,desc'
-      const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
-      getDepts(params).then(res => {
-        this.depts = res.data
-      })
     },
     handleNodeClick(data) {
       this.deptName = data.dptName
