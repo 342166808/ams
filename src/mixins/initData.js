@@ -3,11 +3,21 @@ import { initData } from '@/api/data'
 export default {
   data() {
     return {
-      loading: true, data: [], page: 0, size: 10, total: 0, url: '', params: {}, query: {}, time: 50, isAdd: false, downloadLoading: false
+      loading: true,
+      data: [],
+      page: 0,
+      size: 10,
+      total: 0,
+      url: '',
+      params: {},
+      query: {},
+      time: 50,
+      isAdd: false,
+      downloadLoading: false
     }
   },
   methods: {
-    async init() {
+    async init(callback) {
       if (!await this.beforeInit()) {
         return
       }
@@ -27,6 +37,9 @@ export default {
             this.loading = false
           }, this.time)
           resolve(res)
+          if (callback && typeof callback === 'function') {
+            callback(this)
+          }
         }).catch(err => {
           this.loading = false
           reject(err)

@@ -6,7 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
-import { getChartData } from '@/api/visits'
+import { getAttendanceStatisticsList } from '@/api/attendance'
 
 export default {
   props: {
@@ -32,19 +32,25 @@ export default {
       chart: null,
       sidebarElm: null,
       chartData: {
-        visitsData: [],
-        ipData: []
+        // 加班时长
+        overtimeHoursData: [],
+        // 出勤人数
+        attendanceStaffCountData: []
       },
       weekDays: []
     }
   },
   mounted() {
-    getChartData().then(res => {
-      this.chartData.visitsData = res.visitsData
-      this.chartData.ipData = res.ipData
-      this.weekDays = res.weekDays
+    getAttendanceStatisticsList().then(res => {
+      for (let i = 0; i < res.data.attendanceStatisticsItems.length; i++) {
+        const item = res.data.attendanceStatisticsItems[i]
+        this.chartData.overtimeHoursData.push(item.attendanceStaffCount)
+        this.chartData.attendanceStaffCountData.push(item.overtimeHours)
+        this.weekDays.push(item.date)
+      }
       this.initChart()
     })
+
     if (this.autoResize) {
       this.__resizeHandler = debounce(() => {
         if (this.chart) {
@@ -109,7 +115,7 @@ export default {
           data: ['pv', 'ip']
         },
         series: [{
-          name: 'pv', itemStyle: {
+          name: '每日出勤', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -125,7 +131,7 @@ export default {
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'ip',
+          name: '每日加班',
           smooth: true,
           type: 'line',
           itemStyle: {

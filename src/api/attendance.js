@@ -35,3 +35,39 @@ export function getAttendanceSummaryList(params) {
     params
   })
 }
+
+/**
+ * 员工考勤数据同步
+ * @param params
+ */
+export function syncAttendanceData(params) {
+  return request({
+    url: '/api/attendanceManage/syncAttendanceData',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取昨日考勤数据
+ * @param params
+ */
+export function getYesterdayAttendanceInfo(params) {
+  return request({
+    url: '/api/attendanceManage/getYesterdayAttendanceInfo',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取昨日考勤数据
+ * @param params
+ */
+export function getAttendanceStatisticsList(params) {
+  return request({
+    url: '/api/attendanceManage/getAttendanceStatisticsList',
+    method: 'get',
+    params
+  })
+}

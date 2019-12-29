@@ -11,35 +11,35 @@
       <el-col :xs="15" :sm="18" :md="20" :lg="20" :xl="20">
         <!--工具栏-->
         <div class="head-container">
-          <!-- 搜索 -->
-          <el-input v-model="query.blurry" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="doQuery"/>
           <el-date-picker
             v-model="year"
-            value-format="yyyy"
             type="year"
+            value-format="yyyy"
             placeholder="选择年"
             style="top:-3px;"/>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+          <el-select v-model="month" placeholder="选择月" style="top:-3px;">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="doQuery">搜索</el-button>
         </div>
-        <el-tabs type="border-card">
+        <el-tabs type="border-card" @tab-click="test">
           <el-tab-pane label="列表模式">
             <!--表格渲染-->
             <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-              <el-table-column prop="workerNo" label="工号"/>
-              <el-table-column prop="name" label="姓名"/>
-              <el-table-column prop="deptName" label="部门" width="120"/>
-              <el-table-column prop="postName" label="岗位"/>
-              <el-table-column prop="workingDays" label="出勤天数"/>
-              <el-table-column prop="lateTimes" label="迟到次数"/>
-              <el-table-column prop="leaveEarlyTimes" label="早退次数"/>
-              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
-              <el-table-column prop="leaveTimes" label="请假次数"/>
+              <el-table-column prop="deptName" label="部门名称" fix width="120"/>
               <el-table-column prop="overtimeHours" label="加班时长"/>
-              <el-table-column prop="convertOvertimeHours" label="88"/>
-              <el-table-column prop="totalPlayDays" label="总休息日天数"/>
-              <el-table-column prop="summaryDate" label="汇总月份"/>
-              <el-table-column prop="totalWorkingDays" label="总工作日天数"/>
-              <el-table-column prop="totalHolidayDays" label="总节假日天数"/>
+              <el-table-column prop="leaveEarlyTimes" label="早退次数"/>
+              <el-table-column prop="convertOvertimeHours" label="折算后加班时长"/>
+              <el-table-column prop="summaryDate" label="汇总时间"/>
+              <el-table-column prop="attendanceStaffCount" label="实际出勤人数"/>
+              <el-table-column prop="deptStaffCount" label="部门人员数量"/>
+              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
+              <el-table-column prop="lateTimes" label="迟到次数"/>
+              <el-table-column prop="leaveTimes" label="请假次数"/>
               <el-table-column prop="overtimePay" label="加班费"/>
             </el-table>
             <!--分页组件-->
@@ -52,7 +52,7 @@
               @current-change="pageChange"/>
           </el-tab-pane>
           <el-tab-pane label="图表模式">
-            <div v-for="(item,index) in echartDataList" :id="'myChart'+index" :key="index" :style="{width: '300px', height: '300px'}" style=" float: left; margin-right: 10px; margin-bottom: 5px;"/>
+            <div v-for="(item,index) in echartDataList" :id="'myChart'+index" :key="index" :style="{width: ''+ barWith +'px', height: '300px'}" style=" float: left; margin-right: 10px; margin-bottom: 5px;"/>
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -64,15 +64,23 @@
 import echarts from 'echarts'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
+import BarChart from '../../dashboard/BarChart'
 import { getDepts } from '@/api/dept'
+
 const animationDuration = 4000
 
 export default {
-  name: 'ReportStaff',
+  name: 'ReportDept',
+  components: {
+    BarChart
+  },
   mixins: [initData],
+  // 设置数据字典
   data() {
     return {
       year: '2019',
+      month: '12',
+      barWith: 500,
       deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
       delLoading: false,
@@ -82,21 +90,61 @@ export default {
         children: 'children',
         label: 'dptName'
       },
+      options: [{
+        value: 0,
+        label: '请选择月份'
+      }, {
+        value: 1,
+        label: '1月份'
+      }, {
+        value: 2,
+        label: '2月份'
+      }, {
+        value: 3,
+        label: '3月份'
+      }, {
+        value: 4,
+        label: '4月份'
+      }, {
+        value: 5,
+        label: '5月份'
+      }, {
+        value: 6,
+        label: '6月份'
+      }, {
+        value: 7,
+        label: '7月份'
+      }, {
+        value: 8,
+        label: '8月份'
+      }, {
+        value: 9,
+        label: '9月份'
+      }, {
+        value: 10,
+        label: '10月份'
+      }, {
+        value: 11,
+        label: '11月份'
+      }, {
+        value: 12,
+        label: '12月份'
+      }],
       echartDataList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       echartDataDic: {}
     }
   },
-  created() {
+  async created() {
     this.getDeptDatas()
     this.$nextTick(() => {
       this.init(function(that) {
         const dicDept = {}
         for (let i = 0; i < that.data.length; i++) {
-          if (dicDept[that.data[i].name]) {
-            const arr = dicDept[that.data[i].name]
+          if (dicDept[that.data[i].deptName]) {
+            const arr = dicDept[that.data[i].deptName]
             arr.push(that.data[i])
           } else {
-            dicDept[that.data[i].name] = [that.data[i]]
+            dicDept[that.data[i].deptName] = [that.data[i]]
           }
         }
         that.echartDataDic = dicDept
@@ -117,21 +165,28 @@ export default {
   methods: {
     checkPermission,
     beforeInit() {
-      this.url = 'api/attendanceManage/getAttendanceSummaryList'
-      const sort = 'deptName asc, name'
-      const searchType = 1
-      const query = this.query
+      this.url = 'api/attendanceManage/getAttendanceDeptSummaryList'
+      const sort = 'deptName desc'
+      let searchType = 1
       const deptName = this.deptName
-      const blurry = query.blurry
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (blurry) { this.params['worker'] = blurry }
-      if (deptName) { this.params['deptName'] = deptName }
+      if (deptName) {
+        this.params['deptName'] = deptName
+      }
       if (this.year) {
         this.params['year'] = this.year
       }
-      if (query.date) {
-        this.params['startDate'] = query.date[0]
-        this.params['endDate'] = query.date[1]
+      if (this.month) {
+        this.params['month'] = this.month
+        searchType = 2
+        if (!this.year || this.year === '') {
+          this.$notify({
+            title: '请先选择年份',
+            type: 'error',
+            duration: 2500
+          })
+          return
+        }
       }
       this.params['searchType'] = searchType
       return true
@@ -139,7 +194,7 @@ export default {
     getDeptDatas() {
       const sort = 'id,desc'
       const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
+      if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {
         this.depts = res.data
       })
@@ -153,30 +208,28 @@ export default {
       // TODO:动态div容器
       const myChart = echarts.init(document.getElementById('myChart' + index))
       const xAxisData = []
-      const yAxisWorkingDays = []
-      const yAxisLateTimes = []
-      const yAxisLeaveEarlyTimes = []
-      const yAxisMissingCardTimes = []
-      const yAxisLeaveTimes = []
       const yAxisOvertimeHours = []
+      const yAxisLeaveEarlyTimes = []
       const yAxisConvertOvertimeHours = []
-      const yAxisTotalPlayDays = []
-      const yAxisTotalWorkingDays = []
-      const yAxisTotalHolidayDays = []
+      const yAxisDeptStaffCount = []
+      const yAxisAttendanceStaffCount = []
+      const yAxisMissingCardTimes = []
+      const yAxisLateTimes = []
+      const yAxisLeaveTimes = []
       const yAxisOvertimePay = []
+
+      // TODO: 图表动态宽度
 
       for (let i = 0; i < list.length; i++) {
         xAxisData.push(list[i].summaryDate)
-        yAxisWorkingDays.push(list[i].workingDays)
-        yAxisLateTimes.push(list[i].lateTimes)
-        yAxisLeaveEarlyTimes.push(list[i].leaveEarlyTimes)
-        yAxisMissingCardTimes.push(list[i].missingCardTimes)
         yAxisOvertimeHours.push(list[i].overtimeHours)
-        yAxisLeaveTimes.push(list[i].leaveTimes)
+        yAxisLeaveEarlyTimes.push(list[i].leaveEarlyTimes)
         yAxisConvertOvertimeHours.push(list[i].convertOvertimeHours)
-        yAxisTotalPlayDays.push(list[i].totalPlayDays)
-        yAxisTotalWorkingDays.push(list[i].totalWorkingDays)
-        yAxisTotalHolidayDays.push(list[i].totalHolidayDays)
+        yAxisDeptStaffCount.push(list[i].deptStaffCount)
+        yAxisAttendanceStaffCount.push(list[i].attendanceStaffCount)
+        yAxisMissingCardTimes.push(list[i].missingCardTimes)
+        yAxisLateTimes.push(list[i].lateTimes)
+        yAxisLeaveTimes.push(list[i].leaveTimes)
         yAxisOvertimePay.push(list[i].overtimePay)
       }
 
@@ -187,22 +240,20 @@ export default {
         legend: {
           orient: 'vertical',
           x: 'left',
-          padding: [10, 10, 0, 200],
+          padding: [10, 10, 0, 290],
           selectedMode: false,
           itemWidth: 5,
           itemHeight: 5,
           icon: 'circle',
           data: [
-            { value: yAxisWorkingDays, name: '出勤天数' },
-            { value: yAxisLateTimes, name: '迟到次数' },
-            { value: yAxisLeaveEarlyTimes, name: '早退次数' },
-            { value: yAxisMissingCardTimes, name: '缺卡次数' },
-            { value: yAxisLeaveTimes, name: '请假次数' },
             { value: yAxisOvertimeHours, name: '加班时长' },
-            { value: yAxisConvertOvertimeHours, name: '折算后加班时长' },
-            { value: yAxisTotalPlayDays, name: '总休息日天数' },
-            { value: yAxisTotalWorkingDays, name: '总工作日天数' },
-            { value: yAxisTotalHolidayDays, name: '总节假日天数' },
+            { value: yAxisLeaveEarlyTimes, name: '早退次数' },
+            { value: yAxisMissingCardTimes, name: '折算后加班时长' },
+            { value: yAxisAttendanceStaffCount, name: '实际出勤人数' },
+            { value: yAxisDeptStaffCount, name: '部门人员数量' },
+            { value: yAxisMissingCardTimes, name: '缺卡次数' },
+            { value: yAxisLateTimes, name: '迟到次数' },
+            { value: yAxisLeaveTimes, name: '请假次数' },
             { value: yAxisOvertimePay, name: '加班费' }
           ]
         },
@@ -225,19 +276,12 @@ export default {
           }
         }],
         series: [{
-          name: '出勤天数',
+          name: '加班时长',
           type: 'bar',
           stack: 'vistors',
           color: 'green',
           barWidth: '60%',
-          data: yAxisWorkingDays,
-          animationDuration
-        }, {
-          name: '迟到次数',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: yAxisLateTimes,
+          data: yAxisOvertimeHours,
           animationDuration
         }, {
           name: '早退次数',
@@ -247,28 +291,6 @@ export default {
           data: yAxisLeaveEarlyTimes,
           animationDuration
         }, {
-          name: '缺卡次数',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: yAxisMissingCardTimes,
-          animationDuration
-        }, {
-          name: '请假次数',
-          type: 'bar',
-          color: 'red',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: yAxisLeaveTimes,
-          animationDuration
-        }, {
-          name: '加班时长',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: yAxisOvertimeHours,
-          animationDuration
-        }, {
           name: '折算后加班时长',
           type: 'bar',
           stack: 'vistors',
@@ -276,25 +298,40 @@ export default {
           data: yAxisConvertOvertimeHours,
           animationDuration
         }, {
-          name: '总休息日天数',
+          name: '实际出勤人数',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: yAxisTotalPlayDays,
+          data: yAxisAttendanceStaffCount,
           animationDuration
         }, {
-          name: '总工作日天数',
+          name: '部门人员数量',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: yAxisTotalWorkingDays,
+          data: yAxisDeptStaffCount,
           animationDuration
         }, {
-          name: '总节假日天数',
+          name: '缺卡次数',
+          type: 'bar',
+          color: 'red',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: yAxisMissingCardTimes,
+          animationDuration
+        }, {
+          name: '迟到次数',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: yAxisTotalHolidayDays,
+          data: yAxisLateTimes,
+          animationDuration
+        }, {
+          name: '请假次数',
+          type: 'bar',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: yAxisLeaveTimes,
           animationDuration
         }, {
           name: '加班费',
@@ -311,11 +348,11 @@ export default {
       this.init(function(that) {
         const dicDept = {}
         for (let i = 0; i < that.data.length; i++) {
-          if (dicDept[that.data[i].name]) {
-            const arr = dicDept[that.data[i].name]
+          if (dicDept[that.data[i].deptName]) {
+            const arr = dicDept[that.data[i].deptName]
             arr.push(that.data[i])
           } else {
-            dicDept[that.data[i].name] = [that.data[i]]
+            dicDept[that.data[i].deptName] = [that.data[i]]
           }
         }
         that.echartDataDic = dicDept
