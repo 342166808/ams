@@ -5,7 +5,7 @@
       <!--部门数据-->
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
         <div class="head-container">
-          <el-input v-model="dptName" clearable placeholder="输入部门名称搜索" prefix-icon="el-icon-search" style="width: 100%;" class="filter-item" @input="getDeptDatas"/>
+          <el-input v-model="deptName" clearable placeholder="输入部门名称搜索" prefix-icon="el-icon-search" style="width: 100%;" class="filter-item" @input="getDeptDatas"/>
         </div>
         <el-tree :data="depts" :props="defaultProps" :expand-on-click-node="false" default-expand-all @node-click="handleNodeClick"/>
       </el-col>
@@ -53,7 +53,7 @@ export default {
   // 设置数据字典
   data() {
     return {
-      dptName: '',
+      deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
       delLoading: false,
       depts: [],
@@ -82,11 +82,10 @@ export default {
       this.url = 'api/CrewManage/SearchCrewInfo'
       const sort = 'id,desc'
       const query = this.query
-      const deptName = this.dptName
       const blurry = query.blurry
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
       if (blurry) { this.params['blurryStr'] = blurry }
-      if (deptName) { this.params['dptName'] = deptName }
+      if (this.deptName) { this.params['dptName'] = this.deptName }
       if (query.date) {
         this.params['startTime'] = query.date[0]
         this.params['endTime'] = query.date[1]
@@ -94,15 +93,15 @@ export default {
       return true
     },
     getDeptDatas() {
-      const sort = 'id,desc'
+      const sort = 'dptCode'
       const params = { sort: sort }
-      if (this.deptName) { params['name'] = this.deptName }
+      if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {
         this.depts = res.data
       })
     },
     handleNodeClick(data) {
-      this.dptName = data.dptName
+      this.deptName = data.dptName
       this.init()
     }
   }

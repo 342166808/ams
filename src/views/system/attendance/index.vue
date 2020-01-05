@@ -35,8 +35,18 @@
           <el-table-column prop="scheduleName" label="班次" width="140"/>
           <el-table-column prop="workerDateStr" label="工作日" width="100"/>
           <el-table-column prop="dayOfTheWeekStr" label="星期" width="90"/>
-          <el-table-column prop="checkInTime" label="上班刷卡时间" width="100"/>
-          <el-table-column prop="checkOutTime" label="下班刷卡时间" width="100"/>
+          <el-table-column prop="checkInTime" label="上班刷卡时间" width="100">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.checkInTime || scope.row.checkInTime===''">--</span>
+              <span v-else>{{ scope.row.checkInTime }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="checkOutTime" label="下班刷卡时间" width="100">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.checkOutTime || scope.row.checkOutTime===''">--</span>
+              <span v-else>{{ scope.row.checkOutTime }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="checkInStatusStr" label="上班刷卡状态" width="100">
             <template slot-scope="scope">
               <span v-if="scope.row.checkInStatus === 1" style="color: blue">迟到</span>
@@ -120,7 +130,7 @@ export default {
       return true
     },
     getDeptDatas() {
-      const sort = 'id,desc'
+      const sort = 'dptCode'
       const params = { sort: sort }
       if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {

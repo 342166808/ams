@@ -10,7 +10,7 @@
     </div>
     <!--表格渲染-->
     <el-table v-loading="loading" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :data="data" row-key="id" size="small">
-      <el-table-column label="编号" prop="dptNumber" width="120px"/>
+      <el-table-column label="编号" prop="dptCode" width="120px"/>
       <el-table-column label="部门名称" prop="dptName" width="220px"/>
       <el-table-column label="班次类型" prop="workShiftType" width="220px"/>
       <el-table-column label="备注" prop="remark" width="210px"/>
@@ -46,7 +46,7 @@ export default {
     checkPermission,
     beforeInit() {
       this.url = 'api/DepartmentManage/SearchDepartmentInfo'
-      const sort = 'dptNumber,dptName'
+      const sort = 'dptCode, dptName'
       this.params = { value: this.dptName, page: this.page, size: this.size, sort: sort }
       const query = this.query
       const value = query.value
@@ -72,7 +72,7 @@ export default {
         _this.getWorkShifts()
         _this.form = {
           id: res.data[0].id,
-          dptNumber: res.data[0].dptNumber,
+          dptCode: res.data[0].dptCode,
           dptName: res.data[0].dptName,
           workShiftsId: res.data[0].workShiftsId,
           remark: res.data[0].remark

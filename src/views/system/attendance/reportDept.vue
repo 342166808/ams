@@ -26,20 +26,46 @@
           </el-select>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="doQuery">搜索</el-button>
         </div>
-        <el-tabs type="border-card" @tab-click="test">
+        <el-tabs type="border-card">
           <el-tab-pane label="列表模式">
             <!--表格渲染-->
             <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
               <el-table-column prop="deptName" label="部门名称" fix width="120"/>
-              <el-table-column prop="overtimeHours" label="加班时长"/>
-              <el-table-column prop="leaveEarlyTimes" label="早退次数"/>
-              <el-table-column prop="convertOvertimeHours" label="折算后加班时长"/>
               <el-table-column prop="summaryDate" label="汇总时间"/>
+              <el-table-column prop="deptStaffCount" label="部门人数"/>
               <el-table-column prop="attendanceStaffCount" label="实际出勤人数"/>
-              <el-table-column prop="deptStaffCount" label="部门人员数量"/>
-              <el-table-column prop="missingCardTimes" label="缺卡次数"/>
-              <el-table-column prop="lateTimes" label="迟到次数"/>
-              <el-table-column prop="leaveTimes" label="请假次数"/>
+              <el-table-column prop="overtimeHours" label="加班时长"/>
+              <el-table-column prop="convertOvertimeHours" label="折算后加班时长"/>
+              <el-table-column prop="lateTimes" label="迟到次数">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.lateTimes > 0" style="color: #EEEE00">{{ scope.row.lateTimes }}</span>
+                  <span v-else>{{ scope.row.lateTimes }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="leaveEarlyTimes" label="早退次数">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.leaveEarlyTimes > 0" style="color: #FF8C00">{{ scope.row.leaveEarlyTimes }}</span>
+                  <span v-else>{{ scope.row.leaveEarlyTimes }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="missingCardTimes" label="缺卡次数">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.missingCardTimes > 0" style="color: #FF4500">{{ scope.row.missingCardTimes }}</span>
+                  <span v-else>{{ scope.row.missingCardTimes }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="leaveTimes" label="请假次数">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.leaveTimes > 0" style="color: #CD9B1D">{{ scope.row.leaveTimes }}</span>
+                  <span v-else>{{ scope.row.leaveTimes }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="leaveDays" label="请假天数">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.leaveDays > 0" style="color: #8A2BE2">{{ scope.row.leaveDays }}</span>
+                  <span v-else>{{ scope.row.leaveDays }}</span>
+                </template>
+              </el-table-column>
               <el-table-column prop="overtimePay" label="加班费"/>
             </el-table>
             <!--分页组件-->
@@ -78,8 +104,10 @@ export default {
   // 设置数据字典
   data() {
     return {
-      year: '2019',
-      month: '12',
+      year: (new Date()).getFullYear().toString(),
+      month: ((new Date()).getMonth() + 1).toString(),
+      // year: '2019',
+      // month: '12',
       barWith: 500,
       deptName: '',
       height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
@@ -95,42 +123,42 @@ export default {
         label: '请选择月份'
       }, {
         value: 1,
-        label: '1月份'
+        label: '1月'
       }, {
         value: 2,
-        label: '2月份'
+        label: '2月'
       }, {
         value: 3,
-        label: '3月份'
+        label: '3月'
       }, {
         value: 4,
-        label: '4月份'
+        label: '4月'
       }, {
         value: 5,
-        label: '5月份'
+        label: '5月'
       }, {
         value: 6,
-        label: '6月份'
+        label: '6月'
       }, {
         value: 7,
-        label: '7月份'
+        label: '7月'
       }, {
         value: 8,
-        label: '8月份'
+        label: '8月'
       }, {
         value: 9,
-        label: '9月份'
+        label: '9月'
       }, {
         value: 10,
-        label: '10月份'
+        label: '10月'
       }, {
         value: 11,
-        label: '11月份'
+        label: '11月'
       }, {
         value: 12,
-        label: '12月份'
+        label: '12月'
       }],
-      echartDataList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      echartDataList: [],
       echartDataDic: {}
     }
   },
@@ -148,6 +176,8 @@ export default {
           }
         }
         that.echartDataDic = dicDept
+        const size = Object.keys(dicDept).length
+        that.echartDataList.length = size
         let i = 0
         for (const key in dicDept) {
           that.drawLine(i, key, dicDept[key])
@@ -192,7 +222,7 @@ export default {
       return true
     },
     getDeptDatas() {
-      const sort = 'id,desc'
+      const sort = 'dptCode'
       const params = { sort: sort }
       if (this.deptName) { params['dptName'] = this.deptName }
       getDepts(params).then(res => {
@@ -205,7 +235,6 @@ export default {
     },
     drawLine(index, title, list) {
       // 基于准备好的dom，初始化echarts实例
-      // TODO:动态div容器
       const myChart = echarts.init(document.getElementById('myChart' + index))
       const xAxisData = []
       const yAxisOvertimeHours = []
@@ -217,9 +246,7 @@ export default {
       const yAxisLateTimes = []
       const yAxisLeaveTimes = []
       const yAxisOvertimePay = []
-
-      // TODO: 图表动态宽度
-
+      const yAxisLeaveDays = []
       for (let i = 0; i < list.length; i++) {
         xAxisData.push(list[i].summaryDate)
         yAxisOvertimeHours.push(list[i].overtimeHours)
@@ -231,6 +258,7 @@ export default {
         yAxisLateTimes.push(list[i].lateTimes)
         yAxisLeaveTimes.push(list[i].leaveTimes)
         yAxisOvertimePay.push(list[i].overtimePay)
+        yAxisLeaveDays.push(list[i].leaveDays)
       }
 
       // 绘制图表
@@ -254,6 +282,7 @@ export default {
             { value: yAxisMissingCardTimes, name: '缺卡次数' },
             { value: yAxisLateTimes, name: '迟到次数' },
             { value: yAxisLeaveTimes, name: '请假次数' },
+            { value: yAxisLeaveDays, name: '请假天数' },
             { value: yAxisOvertimePay, name: '加班费' }
           ]
         },
@@ -276,26 +305,11 @@ export default {
           }
         }],
         series: [{
-          name: '加班时长',
-          type: 'bar',
-          stack: 'vistors',
-          color: 'green',
-          barWidth: '60%',
-          data: yAxisOvertimeHours,
-          animationDuration
-        }, {
-          name: '早退次数',
+          name: '部门人数',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: yAxisLeaveEarlyTimes,
-          animationDuration
-        }, {
-          name: '折算后加班时长',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: yAxisConvertOvertimeHours,
+          data: yAxisDeptStaffCount,
           animationDuration
         }, {
           name: '实际出勤人数',
@@ -305,33 +319,59 @@ export default {
           data: yAxisAttendanceStaffCount,
           animationDuration
         }, {
-          name: '部门人员数量',
+          name: '加班时长',
           type: 'bar',
           stack: 'vistors',
+          color: 'green',
           barWidth: '60%',
-          data: yAxisDeptStaffCount,
+          data: yAxisOvertimeHours,
           animationDuration
         }, {
-          name: '缺卡次数',
+          name: '折算后加班时长',
           type: 'bar',
-          color: 'red',
           stack: 'vistors',
           barWidth: '60%',
-          data: yAxisMissingCardTimes,
+          data: yAxisConvertOvertimeHours,
           animationDuration
         }, {
           name: '迟到次数',
           type: 'bar',
+          color: '#EEEE00',
           stack: 'vistors',
           barWidth: '60%',
           data: yAxisLateTimes,
           animationDuration
         }, {
+          name: '早退次数',
+          type: 'bar',
+          color: '#FF8C00',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: yAxisLeaveEarlyTimes,
+          animationDuration
+        }, {
+          name: '缺卡次数',
+          type: 'bar',
+          color: '#FF4500',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: yAxisMissingCardTimes,
+          animationDuration
+        }, {
           name: '请假次数',
           type: 'bar',
+          color: '#CD9B1D',
           stack: 'vistors',
           barWidth: '60%',
           data: yAxisLeaveTimes,
+          animationDuration
+        }, {
+          name: '请假天数',
+          type: 'bar',
+          color: '#CD9B1D',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: yAxisLeaveDays,
           animationDuration
         }, {
           name: '加班费',
@@ -344,23 +384,27 @@ export default {
       })
     },
     doQuery() {
-      this.page = 0
-      this.init(function(that) {
-        const dicDept = {}
-        for (let i = 0; i < that.data.length; i++) {
-          if (dicDept[that.data[i].deptName]) {
-            const arr = dicDept[that.data[i].deptName]
-            arr.push(that.data[i])
-          } else {
-            dicDept[that.data[i].deptName] = [that.data[i]]
+      this.$nextTick(() => {
+        this.page = 0
+        this.init(function(that) {
+          const dicDept = {}
+          for (let i = 0; i < that.data.length; i++) {
+            if (dicDept[that.data[i].deptName]) {
+              const arr = dicDept[that.data[i].deptName]
+              arr.push(that.data[i])
+            } else {
+              dicDept[that.data[i].deptName] = [that.data[i]]
+            }
           }
-        }
-        that.echartDataDic = dicDept
-        let i = 0
-        for (const key in dicDept) {
-          that.drawLine(i, key, dicDept[key])
-          i++
-        }
+          that.echartDataDic = dicDept
+          const size = Object.keys(dicDept).length
+          that.echartDataList.length = size
+          let i = 0
+          for (const key in dicDept) {
+            that.drawLine(i, key, dicDept[key])
+            i++
+          }
+        })
       })
     }
   }

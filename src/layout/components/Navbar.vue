@@ -11,7 +11,8 @@
       </template>
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="user.avatar ? user.avatar : Avatar" class="user-avatar">
+          <!--<img :src="user.avatar ? user.avatar : Avatar" class="user-avatar">-->
+          <img :src="TestUer" class="user-avatar">
           <i class="el-icon-caret-bottom"/>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -48,6 +49,7 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Github from '@/components/Github'
 import Avatar from '@/assets/avatar/avatar.png'
+import TestUer from '@/assets/avatar/testUser.jpg'
 export default {
   components: {
     Breadcrumb,
@@ -58,6 +60,7 @@ export default {
   data() {
     return {
       Avatar: Avatar,
+      TestUer: TestUer,
       dialogVisible: false
     }
   },

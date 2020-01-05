@@ -15,7 +15,8 @@
                 :headers="headers"
                 :action="updateAvatarApi"
                 class="avatar-uploader">
-                <img :src="user.avatar ? user.avatar : Avatar" title="点击上传头像" class="avatar">
+                <!--<img :src="user.avatar ? user.avatar : Avatar" title="点击上传头像" class="avatar">-->
+                <img :src="TestUer" title="点击上传头像" class="avatar">
               </el-upload>
             </div>
             <ul class="user-info">
@@ -87,6 +88,8 @@ import store from '@/store'
 import { parseTime } from '@/utils/index'
 import initData from '@/mixins/initData'
 import Avatar from '@/assets/avatar/avatar.png'
+import TestUer from '@/assets/avatar/testUser.jpg'
+
 export default {
   name: 'Center',
   components: { updatePass, updateEmail },
@@ -94,6 +97,7 @@ export default {
   data() {
     return {
       Avatar: Avatar,
+      TestUer: TestUer,
       ico: 'el-icon-refresh',
       headers: {
         'Authorization': 'Bearer ' + getToken()

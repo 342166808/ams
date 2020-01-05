@@ -39,7 +39,7 @@ export default {
       loading: false, dialog: false, depts: [],
       form: {
         id: 0,
-        dptNumber: '',
+        dptCode: '',
         dptName: '',
         workShiftsId: 0,
         remark: ''
