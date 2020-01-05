@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
-    <!--form 组件-->
+    <!--表单组件-->
+    <eForm ref="form" :is-add="isAdd"/>
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
@@ -27,6 +28,11 @@
           <el-table-column prop="baseSalary" label="底薪"/>
           <el-table-column prop="perf" label="绩效"/>
           <el-table-column prop="remark" label="备注"/>
+          <el-table-column v-if="checkPermission(['admin','user:edit','user:del'])" label="操作" width="125" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button v-permission="['admin','user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+            </template>
+          </el-table-column>
         </el-table>
         <!--分页组件-->
         <el-pagination
@@ -53,8 +59,9 @@ export default {
   // 设置数据字典
   data() {
     return {
+      isAdd: false,
       deptName: '',
-      height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
+      height: document.documentElement.clientHeight - 180 + 'px;',
       delLoading: false,
       depts: [],
       deptId: null,
@@ -103,6 +110,25 @@ export default {
     handleNodeClick(data) {
       this.deptName = data.dptName
       this.init()
+    },
+    edit(data) {
+      this.isAdd = false
+      const _this = this.$refs.form
+      _this.getDepts(function() {
+        _this.form = {
+          id: data.id,
+          staffName: data.staffName,
+          jobNumber: data.jobNumber,
+          dptName: data.dptName,
+          dptCode: data.dptCode,
+          telephone: data.telephone,
+          baseSalary: data.baseSalary,
+          perf: data.perf,
+          email: data.email,
+          remark: data.remark
+        }
+        _this.dialog = true
+      })
     }
   }
 }

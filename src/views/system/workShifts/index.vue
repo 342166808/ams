@@ -65,7 +65,8 @@ export default {
   data() {
     return {
       workShiftType: '',
-      height: document.documentElement.clientHeight - 180 + 'px;', isAdd: false,
+      height: document.documentElement.clientHeight - 180 + 'px;',
+      isAdd: false,
       delLoading: false,
       depts: [],
       deptId: null,
