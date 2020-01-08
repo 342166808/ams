@@ -1,38 +1,40 @@
 <template>
-  <el-dialog :visible.sync="dialog" :close-on-click-modal="false" :before-close="cancel" :title="isAdd ? '新增用户' : '编辑用户'" append-to-body width="570px">
-    <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
-      <el-form-item label="姓名" prop="staffName">
-        <el-input v-model="form.staffName" disabled="disabled"/>
+  <el-dialog :visible.sync="dialog" :close-on-click-modal="false" :before-close="cancel" :title="isAdd ? '新增考勤数据' : '编辑考勤数据'" append-to-body width="470px">
+    <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="90px">
+      <el-form-item label="姓名" prop="name">
+        <el-input v-model="form.name" disabled="disabled"/>
       </el-form-item>
-      <el-form-item label="工号" prop="jobNumber">
-        <el-input v-model="form.jobNumber" disabled="disabled"/>
+      <el-form-item label="工号" prop="workerNo">
+        <el-input v-model="form.workerNo" disabled="disabled"/>
       </el-form-item>
-      <el-form-item label="部门" prop="dptName">
-        <el-select v-model="form.dptCode" placeholder="请选择" style=" width: 184px;">
-          <el-option
-            v-for="item in depts"
-            :key="item.dptCode"
-            :label="item.dptName"
-            :value="item.dptCode"/>
-        </el-select>
+      <el-form-item label="部门" prop="depName">
+        <el-input v-model="form.depName" disabled="disabled" />
       </el-form-item>
-      <el-form-item label="岗位" prop="postName">
-        <el-input v-model="form.postName" disabled="disabled"/>
+      <el-form-item label="上班状态">
+        <el-input v-model="form.checkInStatusStr" disabled="disabled"/>
       </el-form-item>
-      <el-form-item label="电话" prop="telephone">
-        <el-input v-model="form.telephone" />
+      <el-form-item label="下班状态">
+        <el-input v-model="form.checkOutStatusStr" disabled="disabled"/>
       </el-form-item>
-      <el-form-item label="邮箱">
-        <el-input v-model="form.email" />
+      <el-form-item label="上班时间" prop="telephone">
+        <el-time-picker
+          v-model="form.checkInTime"
+          :picker-options="{
+            format: 'HH:mm'
+          }"
+          value-format="HH:mm"
+          style="width: 180px"
+          placeholder="选择时间"/>
       </el-form-item>
-      <el-form-item label="底薪">
-        <el-input v-model="form.baseSalary" />
-      </el-form-item>
-      <el-form-item label="绩效">
-        <el-input v-model="form.perf" />
-      </el-form-item>
-      <el-form-item label="备注">
-        <el-input v-model="form.remark" />
+      <el-form-item label="下班时间">
+        <el-time-picker
+          v-model="form.checkOutTime"
+          :picker-options="{
+            format: 'HH:mm'
+          }"
+          value-format="HH:mm"
+          style="width: 180px"
+          placeholder="选择时间"/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -44,7 +46,7 @@
 
 <script>
 
-import { editUser } from '@/api/user'
+import { saveCheckInOutTime } from '@/api/attendance'
 import { getDepts } from '@/api/dept'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
@@ -69,16 +71,14 @@ export default {
       dialog: false,
       loading: false,
       form: {
-        staffName: '',
-        jobNumber: '',
-        dptCode: '',
+        id: 0,
+        name: '',
+        workerNo: '',
         dptName: '',
-        telephone: '',
-        email: '',
-        baseSalary: 0,
-        perf: 0,
-        remark: '',
-        id: 0
+        checkInStatusStr: '',
+        checkOutStatusStr: '',
+        checkInTime: '',
+        checkOutTime: ''
       },
       rules: {
         username: [
@@ -103,25 +103,17 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      if (!this.isvalidPhone(this.form.telephone)) {
+      if (!this.form.checkInTime) {
         this.$notify({
-          title: '请输入有效的电话号码',
+          title: '请输入有效的上班时间',
           type: 'error',
           duration: 2500
         })
         return
       }
-      if (!this.isvalidNumber(this.form.baseSalary)) {
+      if (!this.form.checkInTime) {
         this.$notify({
-          title: '请输入有效的底薪',
-          type: 'error',
-          duration: 2500
-        })
-        return
-      }
-      if (!this.isvalidNumber(this.form.perf)) {
-        this.$notify({
-          title: '请输入有效的绩效',
+          title: '请输入有效的下班时间',
           type: 'error',
           duration: 2500
         })
@@ -141,7 +133,8 @@ export default {
       })
     },
     doEdit() {
-      editUser(this.form).then(res => {
+      debugger
+      saveCheckInOutTime(this.form).then(res => {
         this.resetForm()
         this.$notify({
           title: '修改成功',
@@ -164,7 +157,6 @@ export default {
       this.form = {
         staffName: '',
         jobNumber: '',
-        postName: '',
         dptCode: '',
         dptName: '',
         telephone: '',

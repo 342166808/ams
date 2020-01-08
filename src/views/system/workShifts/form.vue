@@ -2,14 +2,14 @@
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增班次设置' : '编辑班次设置'" width="750px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
       <el-row>
-        <el-col span="20">
+        <el-col :span="20">
           <el-form-item label="班次类型">
             <el-input v-model="form.workShiftType" style="width: 170px;"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="上班有效时间">
             <el-time-select
               v-model="form.onTime"
@@ -22,7 +22,7 @@
               style=" width: 170px;" />
           </el-form-item>
         </el-col>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="下班有效时间">
             <el-time-select
               v-model="form.offTime"
@@ -37,7 +37,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="第一段上班卡">
             <el-time-select
               v-model="form.firstOnTime"
@@ -50,7 +50,7 @@
               style=" width: 170px;" />
           </el-form-item>
         </el-col>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="第一段下班卡">
             <el-time-select
               v-model="form.firstOffTime"
@@ -65,7 +65,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="第二段上班卡">
             <el-time-select
               v-model="form.secondOnTime"
@@ -78,7 +78,7 @@
               style=" width: 170px;" />
           </el-form-item>
         </el-col>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="第二段下班卡">
             <el-time-select
               v-model="form.secondOffTime"
@@ -93,7 +93,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="加班类型">
             <el-select v-model="form.overtimeType" placeholder="选择加班类型" style=" width: 170px;">
               <el-option
@@ -104,26 +104,26 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="加班最小值">
             <el-input-number v-model="form.minOvertime" :min="60" :step="30" :max="180" style=" width: 170px;"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="工作日加班倍率">
             <el-input-number v-model="form.workingDayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
           </el-form-item>
         </el-col>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="周末加班倍率">
             <el-input-number v-model="form.playdayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col span="10">
+        <el-col :span="10">
           <el-form-item label="节假日加班倍率">
             <el-input-number v-model="form.holidayOvertimeRate" :min="1" :max="10" :step="0.1" style=" width: 170px;"/>
           </el-form-item>

@@ -71,3 +71,27 @@ export function getAttendanceStatisticsList(params) {
     params
   })
 }
+
+/**
+ * 获取单条考勤数据接口
+ * @param params
+ */
+export function getModel(params) {
+  return request({
+    url: '/api/attendanceManage/getModel',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 保存单条上下班时间
+ * @param data
+ */
+export function saveCheckInOutTime(data) {
+  return request({
+    url: '/api/attendanceManage/saveCheckInOutTime',
+    method: 'post',
+    data
+  })
+}

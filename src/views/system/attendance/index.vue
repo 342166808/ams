@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+    <!--表单组件-->
+    <eForm ref="form" :is-add="isAdd"/>
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
@@ -14,15 +16,29 @@
         <div class="head-container">
           <!-- 搜索 -->
           <el-input v-model="workerNo" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
-          <el-date-picker
+          <!--<el-date-picker
             v-model="query.date"
             type="daterange"
             range-separator=":"
-            class="el-range-editor--small filter-item"
+            class="el-range-editor&#45;&#45;small filter-item"
             style="height: 30.5px;width: 220px"
             value-format="yyyy-MM-dd"
             start-placeholder="开始日期"
-            end-placeholder="结束日期"/>
+            end-placeholder="结束日期"/>-->
+          <el-date-picker
+            v-model="startDate"
+            :picker-options="pickerOptions"
+            align="right"
+            type="date"
+            style="top: -3px; width: 150px;"
+            placeholder="选择开始时间"/>
+          <el-date-picker
+            v-model="endDate"
+            :picker-options="pickerOptions"
+            align="right"
+            type="date"
+            style="top: -3px; width: 150px;"
+            placeholder="选择结束时间"/>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-sort" @click="doSyncData">数据同步</el-button>
         </div>
@@ -61,6 +77,11 @@
               <span v-else>正常</span>
             </template>
           </el-table-column>
+          <el-table-column v-if="checkPermission(['admin','user:edit','user:del'])" label="操作" width="125" align="center">
+            <template slot-scope="scope">
+              <el-button v-permission="['admin','user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="edit(scope.row)"/>
+            </template>
+          </el-table-column>
         </el-table>
         <!--分页组件-->
         <el-pagination
@@ -79,13 +100,16 @@
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
 import { getDepts } from '@/api/dept'
-import { syncAttendanceData } from '@/api/attendance'
+import { syncAttendanceData, getModel } from '@/api/attendance'
+import eForm from './form'
 
 export default {
   name: 'Attendance',
+  components: { eForm },
   mixins: [initData],
   data() {
     return {
+      isAdd: false,
       deptName: '',
       workerNo: '',
       startDate: '',
@@ -97,6 +121,31 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'dptName'
+      },
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        },
+        shortcuts: [{
+          text: '今天',
+          onClick(picker) {
+            picker.$emit('pick', new Date())
+          }
+        }, {
+          text: '昨天',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() - 3600 * 1000 * 24)
+            picker.$emit('pick', date)
+          }
+        }, {
+          text: '一周前',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', date)
+          }
+        }]
       }
     }
   },
@@ -117,15 +166,18 @@ export default {
     beforeInit() {
       this.url = 'api/attendanceManage/getAttendanceDailyInfoList'
       const sort = 'workerNo, workerdate asc'
-      const query = this.query
       this.params = { page: this.page, size: this.size, sort: sort, deptId: this.deptId }
-      if (this.deptName) { this.params['deptName'] = this.deptName }
+      if (this.deptName) {
+        this.params['deptName'] = this.deptName
+      }
       if (this.worker) {
         this.params['blurry'] = this.worker
       }
-      if (query.date) {
-        this.params['startDate'] = query.date[0]
-        this.params['endDate'] = query.date[1]
+      if (this.startDate) {
+        this.params['startDate'] = this.startDate
+      }
+      if (this.endDate) {
+        this.params['endDate'] = this.endDate
       }
       return true
     },
@@ -168,6 +220,37 @@ export default {
           type: 'info',
           message: '已取消同步'
         })
+      })
+    },
+    edit(data) {
+      this.isAdd = false
+      const _this = this.$refs.form
+      let checkInTime = data.checkInTime
+      let checkOutTime = data.checkOutTime
+      if (!checkInTime || checkInTime === '') {
+        checkInTime = '00:00'
+      }
+      if (!checkOutTime || checkOutTime === '') {
+        checkOutTime = '23:59'
+      }
+      // const checkInDT = new Date(2020, 1, 1, Number(checkInTime.split(':')[0]), Number(checkInTime.split(':')[1]))
+      // const checkOutDT = new Date(2020, 1, 1, Number(checkOutTime.split(':')[0]), Number(checkOutTime.split(':')[1]))
+
+      getModel({ id: data.id }).then(res => {
+        _this.form = {
+          id: data.id,
+          name: data.name,
+          workerNo: data.workerNo,
+          depName: data.depName,
+          workerDate: data.workerDate,
+          checkInStatusStr: data.checkInStatusStr,
+          checkOutStatusStr: data.checkOutStatusStr,
+          checkInTime: checkInTime,
+          checkOutTime: checkOutTime
+        }
+        _this.dialog = true
+      }).catch(err => {
+        console.log(err.response.data.message)
       })
     }
   }

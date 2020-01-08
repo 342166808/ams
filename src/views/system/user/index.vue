@@ -20,13 +20,14 @@
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-          <el-table-column prop="jobNumber" label="工号"/>
-          <el-table-column prop="staffName" label="姓名"/>
-          <el-table-column prop="dptName" label="部门"/>
-          <el-table-column prop="telephone" label="电话"/>
-          <el-table-column prop="email" label="邮箱"/>
-          <el-table-column prop="baseSalary" label="底薪"/>
-          <el-table-column prop="perf" label="绩效"/>
+          <el-table-column prop="jobNumber" label="工号" style="width: 80px"/>
+          <el-table-column prop="staffName" label="姓名" style="width: 90px"/>
+          <el-table-column prop="postName" label="岗位" style="width: 90px"/>
+          <el-table-column prop="dptName" label="部门" style="width: 110px"/>
+          <el-table-column prop="telephone" label="电话" style="width: 110px"/>
+          <el-table-column prop="email" label="邮箱" style="width: 120px"/>
+          <el-table-column prop="baseSalary" label="底薪" style="width: 60px"/>
+          <el-table-column prop="perf" label="绩效" style="width: 60px"/>
           <el-table-column prop="remark" label="备注"/>
           <el-table-column v-if="checkPermission(['admin','user:edit','user:del'])" label="操作" width="125" align="center" fixed="right">
             <template slot-scope="scope">
@@ -119,6 +120,7 @@ export default {
           id: data.id,
           staffName: data.staffName,
           jobNumber: data.jobNumber,
+          postName: data.postName,
           dptName: data.dptName,
           dptCode: data.dptCode,
           telephone: data.telephone,
