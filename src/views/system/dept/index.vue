@@ -7,6 +7,14 @@
       <!-- 搜索 -->
       <el-input v-model="query.value" clearable placeholder="输入部门名称搜索" style="width: 200px;" class="filter-item"/>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+      <!-- 导出 -->
+      <el-button
+        :loading="downloadLoading"
+        size="mini"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="download">导出</el-button>
     </div>
     <!--表格渲染-->
     <el-table v-loading="loading" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :data="data" row-key="id" size="small">
@@ -80,6 +88,13 @@ export default {
         _this.dialog = true
       }).catch(err => {
         console.log(err.response.data.message)
+      })
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
       })
     }
   }

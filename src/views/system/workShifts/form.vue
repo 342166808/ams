@@ -14,9 +14,9 @@
             <el-time-select
               v-model="form.onTime"
               :picker-options="{
-                step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                step: '00:01',
+                start: '00:00',
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -27,8 +27,8 @@
             <el-time-select
               v-model="form.offTime"
               :picker-options="{
-                step: '00:10',
-                start: '16:30',
+                step: '00:01',
+                start: '00:00',
                 end: '23:59'
               }"
               placeholder="选择时间"
@@ -42,9 +42,9 @@
             <el-time-select
               v-model="form.firstOnTime"
               :picker-options="{
-                step: '00:10',
-                start: '08:00',
-                end: '12:00'
+                step: '00:01',
+                start: '00:00',
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -55,9 +55,9 @@
             <el-time-select
               v-model="form.firstOffTime"
               :picker-options="{
-                step: '00:10',
-                start: '12:00',
-                end: '13:30'
+                step: '00:01',
+                start: '00:00',
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -70,9 +70,9 @@
             <el-time-select
               v-model="form.secondOnTime"
               :picker-options="{
-                step: '00:10',
-                start: '13:30',
-                end: '14:00'
+                step: '00:01',
+                start: '00:00',
+                end: '23:59'
               }"
               placeholder="选择时间"
               style=" width: 170px;" />
@@ -83,8 +83,8 @@
             <el-time-select
               v-model="form.secondOffTime"
               :picker-options="{
-                step: '00:10',
-                start: '16:30',
+                step: '00:01',
+                start: '00:00',
                 end: '23:59'
               }"
               placeholder="选择时间"
@@ -248,6 +248,20 @@ export default {
     resetForm() {
       this.dialog = false
       this.$refs['form'].resetFields()
+      this.form = {
+        workShiftType: '',
+        onTime: '08:00',
+        offTime: '16:30',
+        firstOnTime: '08:00',
+        firstOffTime: '12:00',
+        secondOnTime: '13:30',
+        secondOffTime: '16:30',
+        overtimeType: 1,
+        minOvertime: 1,
+        workingDayOvertimeRate: 1,
+        playdayOvertimeRate: 1,
+        holidayOvertimeRate: 1
+      }
     }
   }
 }

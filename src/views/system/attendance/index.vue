@@ -45,7 +45,15 @@
             style="top: -3px; width: 150px;"
             placeholder="选择结束时间"/>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
-          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-sort" @click="doSyncData">数据同步</el-button>
+          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-sort" @click="doSyncData">数据同步</el-button>
+          <!-- 导出 -->
+          <el-button
+            :loading="downloadLoading"
+            size="mini"
+            class="filter-item"
+            type="warning"
+            icon="el-icon-download"
+            @click="download">导出</el-button>
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
@@ -212,8 +220,8 @@ export default {
       if (this.deptName) {
         this.params['deptName'] = this.deptName
       }
-      if (this.worker) {
-        this.params['blurry'] = this.worker
+      if (this.workerNo) {
+        this.params['blurry'] = this.workerNo
       }
       if (this.startDate) {
         this.params['startDate'] = this.startDate
@@ -299,6 +307,13 @@ export default {
         _this.dialog = true
       }).catch(err => {
         console.log(err.response.data.message)
+      })
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
       })
     }
   }

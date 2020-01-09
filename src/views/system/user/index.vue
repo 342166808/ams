@@ -17,6 +17,14 @@
           <!-- 搜索 -->
           <el-input v-model="query.blurry" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+          <!-- 导出 -->
+          <el-button
+            :loading="downloadLoading"
+            size="mini"
+            class="filter-item"
+            type="warning"
+            icon="el-icon-download"
+            @click="download">导出</el-button>
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
@@ -130,6 +138,13 @@ export default {
           remark: data.remark
         }
         _this.dialog = true
+      })
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
       })
     }
   }

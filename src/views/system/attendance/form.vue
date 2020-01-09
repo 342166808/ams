@@ -133,7 +133,6 @@ export default {
       })
     },
     doEdit() {
-      debugger
       saveCheckInOutTime(this.form).then(res => {
         this.resetForm()
         this.$notify({

@@ -24,7 +24,15 @@
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-setting" @click="toSetting">设置</el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit-outline" @click="toCreate">生成</el-button>
-          <!--<el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toSave">保存</el-button>-->
+          <!-- 导出 -->
+          <el-button
+            :loading="downloadLoading"
+            size="mini"
+            class="filter-item"
+            type="warning"
+            icon="el-icon-download"
+            @click="download">导出</el-button>
+            <!--<el-button class="filter-item" size="mini" type="success" icon="el-icon-document-add" @click="toSave">保存</el-button>-->
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" @selection-change="handleSelectionChange">
@@ -185,6 +193,13 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
+      })
     }
   }
 }

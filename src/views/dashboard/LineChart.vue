@@ -83,7 +83,7 @@ export default {
         this.__resizeHandler()
       }
     },
-    setOptions({ visitsData, ipData } = {}) {
+    setOptions({ overtimeHoursData, attendanceStaffCountData } = {}) {
       this.chart.setOption({
         xAxis: {
           data: this.weekDays,
@@ -112,7 +112,7 @@ export default {
           }
         },
         legend: {
-          data: ['pv', 'ip']
+          data: ['每日出勤', '每日加班']
         },
         series: [{
           name: '每日出勤', itemStyle: {
@@ -126,7 +126,7 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: visitsData,
+          data: overtimeHoursData,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
@@ -146,7 +146,7 @@ export default {
               }
             }
           },
-          data: ipData,
+          data: attendanceStaffCountData,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
         }]

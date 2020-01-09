@@ -10,6 +10,14 @@
           <el-input v-model="workShiftType" clearable placeholder="输入班次类型搜索" style="width: 200px;" class="filter-item" />
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-setting" @click="add">新增</el-button>
+          <!-- 导出 -->
+          <el-button
+            :loading="downloadLoading"
+            size="mini"
+            class="filter-item"
+            type="warning"
+            icon="el-icon-download"
+            @click="download">导出</el-button>
         </div>
         <!--表格渲染-->
         <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
@@ -157,6 +165,13 @@ export default {
         _this.dialog = true
       }).catch(err => {
         console.log(err.response.data.message)
+      })
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
       })
     }
   }

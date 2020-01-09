@@ -25,6 +25,14 @@
               :value="item.value"/>
           </el-select>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="doQuery">搜索</el-button>
+          <!-- 导出 -->
+          <el-button
+            :loading="downloadLoading"
+            size="mini"
+            class="filter-item"
+            type="warning"
+            icon="el-icon-download"
+            @click="download">导出</el-button>
         </div>
         <el-tabs type="border-card">
           <el-tab-pane label="列表模式">
@@ -232,6 +240,13 @@ export default {
     handleNodeClick(data) {
       this.deptName = data.dptName
       this.init()
+    },
+    download() {
+      this.$notify({
+        title: '敬请期待',
+        type: 'success',
+        duration: 2500
+      })
     },
     drawLine(index, title, list) {
       // 基于准备好的dom，初始化echarts实例
