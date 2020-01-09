@@ -16,15 +16,20 @@
         <div class="head-container">
           <!-- 搜索 -->
           <el-input v-model="workerNo" clearable placeholder="输入工号或者姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
-          <!--<el-date-picker
-            v-model="query.date"
-            type="daterange"
-            range-separator=":"
-            class="el-range-editor&#45;&#45;small filter-item"
-            style="height: 30.5px;width: 220px"
-            value-format="yyyy-MM-dd"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"/>-->
+          <el-select v-model="checkInStatus" placeholder="请选择上班状态" style="top: -3px; width: 150px;">
+            <el-option
+              v-for="item in checkInOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
+          <el-select v-model="checkOutStatus" placeholder="请选择下班状态" style="top: -3px; width: 150px;">
+            <el-option
+              v-for="item in checkOutOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
           <el-date-picker
             v-model="startDate"
             :picker-options="pickerOptions"
@@ -118,6 +123,8 @@ export default {
       delLoading: false,
       depts: [],
       deptId: null,
+      checkInStatus: -1,
+      checkOutStatus: -1,
       defaultProps: {
         children: 'children',
         label: 'dptName'
@@ -146,7 +153,42 @@ export default {
             picker.$emit('pick', date)
           }
         }]
-      }
+      },
+      checkInOptions: [{
+        value: -1,
+        label: '请选择上班状态'
+      }, {
+        value: 0,
+        label: '上班异常'
+      }, {
+        value: 1,
+        label: '正常'
+      }, {
+        value: 2,
+        label: '迟到'
+      }, {
+        value: 3,
+        label: '缺卡'
+      }],
+      checkOutOptions: [{
+        value: -1,
+        label: '请选择下班状态'
+      }, {
+        value: 0,
+        label: '下班异常'
+      }, {
+        value: 1,
+        label: '正常'
+      }, {
+        value: 2,
+        label: '早退'
+      }, {
+        value: 3,
+        label: '缺卡'
+      }, {
+        value: 4,
+        label: '加班'
+      }]
     }
   },
   created() {
@@ -178,6 +220,12 @@ export default {
       }
       if (this.endDate) {
         this.params['endDate'] = this.endDate
+      }
+      if (this.checkInStatus > -1) {
+        this.params['checkInStatus'] = this.checkInStatus
+      }
+      if (this.checkOutStatus > -1) {
+        this.params['checkOutStatus'] = this.checkOutStatus
       }
       return true
     },
