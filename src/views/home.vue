@@ -25,7 +25,7 @@
         </el-col>
       </el-row>-->
 
-      <el-row :gutter="1" style="background:#fff; height: 200px;">
+      <el-row :gutter="1" style="background:#fff; height: 320px;">
         <el-table v-loading="loading" :data="tableData" size="small" style="width: 100%;" stripe>
           <el-table-column prop="workerNo" label="工号" fixed width="80"/>
           <el-table-column prop="name" label="姓名" fixed width="100"/>
