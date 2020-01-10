@@ -100,7 +100,7 @@ export default {
   },
   mounted: function() {
     const params = {
-      page: 1,
+      page: 0,
       size: 7,
       sort: 'workerdate desc',
       blurry: '92595'
